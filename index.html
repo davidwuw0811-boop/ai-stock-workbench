@@ -1526,7 +1526,7 @@ function setupAnalyzer() {
   analyzerDB.slice(0, 8).forEach(s => {
     hintsHtml += `<button class="analyzer-hint-btn" data-code="${s.code}" data-name="${s.name}">${s.name}</button>`;
   });
-  hintsHtml += `<span>等${analyzerDB.length}只</span>`;
+  hintsHtml += '<span>等，支持输入任意代码</span>';
   hints.innerHTML = hintsHtml;
   hints.querySelectorAll('.analyzer-hint-btn').forEach(b => {
     b.addEventListener('click', () => {
