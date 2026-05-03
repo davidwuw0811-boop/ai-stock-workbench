@@ -1,184 +1,133 @@
-# AI Stock Workbench｜AI 选股工作台
+# AI Stock Workbench — 投资大师风格引擎
 
-> AI-powered stock research workbench for screening, strategy comparison, risk analysis, and research report generation.  
-> 一个面向普通投资者和研究者的 AI 投研工作台：多因子选股、强化学习择时接口、情绪分析、风险评分与投研报告生成。
+> AI选股工作台：将巴菲特、ARK、彼得林奇等投资大师的公开理念转化为量化筛选因子
 
-![status](https://img.shields.io/badge/status-MVP-blue)
-![license](https://img.shields.io/badge/license-MIT-green)
-![python](https://img.shields.io/badge/python-3.10%2B-blue)
-![frontend](https://img.shields.io/badge/frontend-Next.js-black)
+## 在线体验
 
-## 项目定位
+- **Manus 部署版**：[https://aistockwb-efzjh7xe.manus.space](https://aistockwb-efzjh7xe.manus.space)
+- **GitHub Pages 版**：启用 GitHub Pages 后通过 `index.html` 访问
 
-AI Stock Workbench 不是“自动荐股神器”，而是一个 **AI 投研辅助平台**。它帮助用户：
+## 功能特性
 
-- 从 A 股 / 美股股票池中筛选候选标的
-- 比较基本面、动量、情绪、强化学习等多种策略信号
-- 生成可解释的 AI 投研卡片和风险提示
-- 预留 FinRL、AKShare、TuShare、Yahoo Finance、LLM Agent 等扩展接口
+### 投资大师风格引擎
+- **巴菲特-芒格（价值投资）**：高ROE、低负债、强现金流、护城河评估
+- **木头姐ARK（颠覆创新）**：高增长、高研发、创新赛道、平台潜力
+- **彼得林奇（成长价值）**：PEG合理、盈利增长、业务易懂、中小市值
 
-> 本项目仅用于研究、教育和产品原型演示，不构成任何证券、基金、期货、加密资产或其他金融产品的投资建议。
+### 五大策略模块
+- 基本面多因子 📊
+- 动量趋势 📈
+- 情绪分析 💬
+- FinRL强化学习 🤖
+- LLM投研Agent 🧠
 
----
+### 个股分析器
+输入任意股票代码，系统用三大投资风格和所有策略进行综合分析，输出：
+- 各风格评分 + 雷达图
+- 策略信号（看多/中性/看空）
+- 综合结论（优势与风险）
 
-## MVP 功能
+### 数据可视化
+- AI评分环形进度条
+- 迷你K线图
+- 价格走势图（带渐变填充）
+- 成交量柱状图
+- MA5/MA20均线叠加
 
-### 1. 多市场选择
+## 项目结构
 
-- 美股 US Equities
-- A股 China A-shares
-- 后续可扩展：港股、ETF、加密资产
-
-### 2. 多策略插件
-
-当前内置策略：
-
-- `fundamental`：基本面评分，包括估值、盈利质量、成长性、资产负债表
-- `momentum`：动量评分，包括趋势、波动、近端价格强度
-- `sentiment`：情绪评分，包括新闻、社媒、市场叙事热度的模拟接口
-- `finrl`：强化学习择时策略适配器，占位接口，后续可接入 FinRL / FinRL-Trading
-- `llm_agent`：LLM 投研总结接口，占位实现，后续可接 OpenAI / Claude / 本地模型
-
-### 3. 输出结果
-
-每只股票输出：
-
-- 综合评分
-- 策略分项评分
-- 上涨逻辑
-- 风险提示
-- 适合投资者类型
-- 研究用途免责声明
-
-### 4. 回测接口
-
-MVP 提供模拟回测结果结构，后续可接 Backtrader、VectorBT、FinRL、Zipline 等框架。
-
----
-
-## 技术架构
-
-```text
+```
 ai-stock-workbench/
-├── backend/                    # FastAPI 后端
+├── index.html              # 纯前端版本（GitHub Pages）
+├── backend/                # FastAPI 后端 API
 │   ├── app/
-│   │   ├── api/                # API 路由
-│   │   ├── core/               # 配置与免责声明
-│   │   ├── data_providers/     # 数据源适配器
-│   │   ├── models/             # Pydantic 数据模型
-│   │   ├── strategies/         # 策略插件
-│   │   ├── risk_engine/        # 风险评分
-│   │   ├── report_generator/   # 投研报告生成
-│   │   └── services/           # 业务编排
-│   └── tests/
-├── frontend/                   # Next.js 前端
-├── docs/                       # 产品、架构、合规与插件文档
-└── examples/                   # 示例请求与报告
+│   │   ├── main.py         # FastAPI 路由 + CORS
+│   │   ├── data_fetcher.py # 数据获取（AKShare + yfinance）
+│   │   └── scoring.py      # 三大投资风格评分模型
+│   ├── requirements.txt    # Python 依赖
+│   ├── Procfile            # Railway 部署配置
+│   ├── railway.json        # Railway 配置
+│   └── nixpacks.toml       # Nixpacks 构建配置
+├── client/                 # React 前端源码（Manus 部署版）
+│   └── src/
+│       ├── pages/Home.tsx
+│       ├── components/     # UI 组件
+│       └── lib/mockData.ts # 模拟数据
+└── README.md
 ```
 
----
+## 后端 API
 
-## 快速开始
+### 接口说明
 
-### 后端启动
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/api/health` | GET | 健康检查 |
+| `/api/search?q=xxx` | GET | 股票搜索/模糊匹配 |
+| `/api/analyze/{stock_code}` | GET | 完整投资风格分析 |
+
+### 数据源
+- **A股**：[AKShare](https://github.com/akfamily/akshare) — 实时行情、财务指标
+- **美股**：[yfinance](https://github.com/ranaroussi/yfinance) — 实时行情、财务数据
+
+### 评分模型
+
+**巴菲特-芒格评分维度（权重）：**
+- ROE质量(20%) + 负债水平(15%) + 盈利稳定性(15%) + 自由现金流(15%) + 护城河(15%) + 估值合理性(15%) + 管理层质量(5%)
+
+**木头姐ARK评分维度（权重）：**
+- 主题契合度(25%) + 收入增长(20%) + 研发强度(15%) + 平台潜力(15%) + 市场空间(15%) + 估值风险扣分(-10%)
+
+**彼得林奇评分维度（权重）：**
+- PEG合理性(25%) + 盈利增长(20%) + 业务可理解性(15%) + 财务健康(15%) + 成长空间(15%) + 估值水平(10%)
+
+## 部署指南
+
+### 方式一：GitHub Pages（纯前端）
+
+1. Fork 本仓库
+2. 在仓库 Settings → Pages 中启用 GitHub Pages
+3. 选择 `main` 分支的根目录
+4. 访问 `https://<username>.github.io/ai-stock-workbench/`
+
+### 方式二：Railway（后端 API）
+
+1. 登录 [Railway](https://railway.app)
+2. New Project → Deploy from GitHub Repo
+3. 选择本仓库，设置 Root Directory 为 `backend`
+4. Railway 会自动检测 Python 项目并部署
+5. 部署成功后获取域名，如 `https://your-app.up.railway.app`
+6. 在 `index.html` 中设置 `API_BASE_URL` 为该域名
+
+### 方式三：本地运行
 
 ```bash
+# 安装依赖
 cd backend
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+
+# 启动服务
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# 测试
+curl http://localhost:8000/api/health
+curl http://localhost:8000/api/analyze/AAPL
+curl http://localhost:8000/api/analyze/600519
 ```
 
-访问：
+## 技术栈
 
-```text
-http://localhost:8000/docs
-```
+| 层级 | 技术 |
+|------|------|
+| 前端（Manus版） | React 19 + Tailwind CSS 4 + Recharts + Framer Motion |
+| 前端（GitHub Pages版） | 纯 HTML/CSS/JS + Chart.js |
+| 后端 | FastAPI + AKShare + yfinance |
+| 部署 | Manus / Railway / GitHub Pages |
 
-### 前端启动
+## 免责声明
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-访问：
-
-```text
-http://localhost:3000
-```
-
-### Docker Compose
-
-```bash
-docker compose up --build
-```
-
----
-
-## API 示例
-
-### POST `/api/screening`
-
-```json
-{
-  "market": "US",
-  "strategies": ["fundamental", "momentum", "sentiment", "finrl", "llm_agent"],
-  "risk_profile": "balanced",
-  "top_n": 5
-}
-```
-
-### 示例返回
-
-```json
-{
-  "market": "US",
-  "risk_profile": "balanced",
-  "results": [
-    {
-      "ticker": "MSFT",
-      "name": "Microsoft",
-      "overall_score": 86.5,
-      "strategy_scores": {
-        "fundamental": 88,
-        "momentum": 82,
-        "sentiment": 85,
-        "finrl": 80,
-        "llm_agent": 90
-      },
-      "thesis": ["云业务稳健", "AI 应用商业化持续推进"],
-      "risks": ["估值偏高", "AI CapEx 可能压制利润率"],
-      "suitability": "适合中长期成长型观察组合"
-    }
-  ],
-  "disclaimer": "For research and educational purposes only. Not financial advice."
-}
-```
-
----
-
-## 未来路线图
-
-- [ ] 接入 AKShare / TuShare 获取 A 股数据
-- [ ] 接入 yfinance / Polygon / Alpha Vantage 获取美股数据
-- [ ] 接入 FinRL / FinRL-Trading 做强化学习训练与择时
-- [ ] 接入真实新闻与社媒情绪分析
-- [ ] 增加策略回测：年化收益、最大回撤、夏普比率、胜率、换手率
-- [ ] 增加组合跟踪：持仓贡献、行业集中度、风险暴露
-- [ ] 增加 LLM 自动投研报告生成
-- [ ] 增加用户自定义策略插件系统
-
----
-
-## 合规声明
-
-本项目不提供任何个性化投资建议，不承诺收益，不代客理财，不自动执行交易。所有输出均为基于示例数据和模型规则生成的研究信息。用户应自行判断风险，并在必要时咨询持牌金融顾问。
-
----
+本模型只是将公开投资理念转化为量化筛选因子，用于研究和教育，不代表巴菲特、芒格、Cathie Wood 或 ARK 的真实投资意见，也不构成投资建议。
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+MIT

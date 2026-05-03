@@ -388,6 +388,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
         <div>
           <h2>个股分析器</h2>
           <p>输入股票代码或名称，用所有投资风格和策略进行综合分析</p>
+          <p style="font-size:10px;color:var(--text-ghost);margin-top:2px" id="analyzerMode">📡 模式：本地模拟数据（配置API后可实时分析任意股票）</p>
         </div>
       </div>
       <div class="analyzer-search">
@@ -1349,9 +1350,62 @@ const analyzerDB = [
    risks:['零售竞争激烈，利润率承压','资本开支压力大','反垄断监管风险']}
 ];
 
+// ===== API CONFIGURATION =====
+// Set this to your Railway backend URL, e.g. 'https://your-app.up.railway.app'
+// When empty, falls back to local mock data.
+const API_BASE_URL = '';
+
 function searchAnalyzerDB(query) {
   const q = query.trim().toUpperCase();
   return analyzerDB.find(s => s.code.toUpperCase().includes(q) || s.name.toUpperCase().includes(q) || s.name.includes(query.trim())) || null;
+}
+
+// Convert API response to the format expected by renderAnalyzerReport
+function apiResponseToReport(apiData) {
+  const styleMap = {
+    buffett: {id:'buffett', name:'巴菲特-芒格'},
+    ark: {id:'ark', name:'木头姐ARK'},
+    lynch: {id:'lynch', name:'彼得林奇'}
+  };
+  const styles = Object.entries(apiData.styles).map(([key, val]) => {
+    const dims = Object.entries(val.dimensions).map(([n, s]) => ({n, s: Math.max(0, s)}));
+    return { id: key, name: styleMap[key]?.name || key, score: val.score, dims, comment: val.summary };
+  });
+  const signalNameMap = {fundamental:'基本面多因子', momentum:'动量趋势', sentiment:'情绪分析'};
+  const signals = Object.entries(apiData.strategies).map(([key, val]) => ({
+    name: signalNameMap[key] || key, signal: val.signal, reason: val.reason
+  }));
+  return {
+    code: apiData.stock_code,
+    name: apiData.stock_name,
+    market: apiData.market === '美股' ? 'US' : 'A',
+    overallScore: apiData.conclusion.overall_score,
+    bestStyle: apiData.conclusion.best_style_name,
+    styles,
+    signals,
+    strengths: apiData.conclusion.advantages,
+    risks: apiData.conclusion.risks
+  };
+}
+
+async function analyzeViaAPI(query) {
+  if (!API_BASE_URL) return null;
+  try {
+    // Try search first
+    const searchRes = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}`);
+    const searchData = await searchRes.json();
+    let code = query.trim();
+    if (searchData.results && searchData.results.length > 0) {
+      code = searchData.results[0].code;
+    }
+    const res = await fetch(`${API_BASE_URL}/api/analyze/${encodeURIComponent(code)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return apiResponseToReport(data);
+  } catch (e) {
+    console.warn('API call failed, falling back to local data:', e);
+    return null;
+  }
 }
 
 function createMiniScoreRingSVG(score, size, color) {
@@ -1476,12 +1530,23 @@ function setupAnalyzer() {
     });
   });
 
-  function doAnalyze(q) {
+  async function doAnalyze(q) {
     if (!q || !q.trim()) return;
+    sugBox.classList.add('hidden');
+    // Try API first if configured
+    if (API_BASE_URL) {
+      container_report.innerHTML = '<div class="report-card"><div class="report-inner" style="text-align:center;padding:40px"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px;color:var(--text-muted)">正在从API获取实时数据并分析...</div></div></div>';
+      const apiResult = await analyzeViaAPI(q);
+      if (apiResult) {
+        renderAnalyzerReport(apiResult);
+        return;
+      }
+    }
+    // Fallback to local mock data
     const r = searchAnalyzerDB(q);
     renderAnalyzerReport(r);
-    sugBox.classList.add('hidden');
   }
+  const container_report = document.getElementById('analyzerReport');
 
   btn.addEventListener('click', () => doAnalyze(input.value));
   input.addEventListener('keydown', e => { if (e.key === 'Enter') doAnalyze(input.value); });
