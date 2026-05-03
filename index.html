@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>AI Stock Workbench — 投资大师风格引擎</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+/* ============================================
+   AI Stock Workbench — Amber Design System
+   Luxury Fintech Aesthetic: Cream + Matte Gold
+   ============================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-display:'DM Sans',system-ui,-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-mono:'JetBrains Mono','SF Mono',monospace;
+  --font-body:system-ui,-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --cream:#FAFAF8;--cream-dark:#F5F5F0;
+  --gold:#C9A96E;--gold-dark:#B8963E;--gold-light:#D4B87A;
+  --text-primary:#1A1A1A;--text-secondary:#6B6B63;--text-muted:#8B8B82;--text-faint:#9B9B93;--text-ghost:#CDCDC5;
+  --green:#2E8B6A;--red:#C05252;
+  --blue:#2C5282;--purple:#6B46C1;--forest:#276749;
+  --glass-bg:rgba(255,255,252,0.55);--glass-bg-active:rgba(255,255,252,0.88);
+  --glass-border:rgba(201,169,110,0.1);--glass-border-active:rgba(201,169,110,0.4);
+  --shadow-sm:0 1px 12px rgba(0,0,0,0.02);--shadow-md:0 8px 32px rgba(201,169,110,0.08),0 2px 8px rgba(0,0,0,0.03);
+}
+body{
+  font-family:var(--font-body);background:var(--cream);color:var(--text-primary);
+  min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse at 20% 50%,rgba(201,169,110,0.03) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 20%,rgba(201,169,110,0.02) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 80%,rgba(46,139,106,0.015) 0%,transparent 50%);
+}
+.container{width:100%;max-width:1280px;margin:0 auto;padding:0 1rem}
+@media(min-width:640px){.container{padding:0 1.5rem}}
+@media(min-width:1024px){.container{padding:0 2rem}}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scoreRing{from{stroke-dashoffset:var(--ring-circumference)}to{stroke-dashoffset:var(--ring-offset)}}
+.anim-fade-up{animation:fadeInUp 0.5s ease-out both}
+.anim-fade{animation:fadeIn 0.4s ease-out both}
+
+/* ===== NAVBAR ===== */
+.navbar{position:sticky;top:0;z-index:50;width:100%;border-bottom:1px solid rgba(201,169,110,0.1);
+  background:rgba(250,250,248,0.82);backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2)}
+.navbar-inner{display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo-wrap{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;letter-spacing:-0.3px;color:#fff;
+  background:linear-gradient(135deg,#C9A96E 0%,#D4B87A 40%,#B8963E 100%);box-shadow:0 2px 8px rgba(201,169,110,0.3)}
+.logo-text h1{font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:-0.3px;line-height:1;color:var(--text-primary)}
+.logo-text p{font-size:10px;line-height:1;margin-top:2px;color:var(--text-muted)}
+.market-toggle{display:flex;align-items:center;border-radius:99px;padding:3px;background:rgba(201,169,110,0.07)}
+.market-btn{padding:6px 16px;font-size:13px;font-weight:500;border-radius:99px;transition:all 0.3s}
+.market-btn.active{color:#fff;background:linear-gradient(135deg,#C9A96E 0%,#B8963E 100%);box-shadow:0 2px 8px rgba(201,169,110,0.3)}
+.market-btn:not(.active){color:var(--text-secondary)}
+.risk-wrap{display:flex;align-items:center;gap:4px}
+.risk-label{font-size:11px;margin-right:4px;color:var(--text-muted)}
+.risk-btn{padding:4px 10px;font-size:11px;font-weight:500;border-radius:99px;transition:all 0.3s;border:1px solid transparent}
+.risk-btn.active{background:rgba(201,169,110,0.1);color:var(--gold-dark);border-color:rgba(201,169,110,0.25)}
+.risk-btn:not(.active){color:var(--text-muted)}
+@media(max-width:639px){.logo-text-full{display:none}.risk-label{display:none}.risk-btn{padding:4px 8px;font-size:10px}.market-btn{padding:5px 12px;font-size:12px}}
+@media(min-width:640px){.logo-text-mobile{display:none}}
+
+/* ===== HERO ===== */
+.hero{position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;opacity:0.3;background-size:cover;background-position:center 65%;
+  background-image:url('https://d2xsxph8kpxj0f.cloudfront.net/310519663477857178/Efzjh7XenxhXiHfzLu6tjZ/hero-bg-kZnHvS2v9Ag9RTNhtKnZY5.webp')}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(250,250,248,0.5) 0%,rgba(250,250,248,0.92) 100%)}
+.hero-content{position:relative;padding:32px 0 32px}
+.hero-flex{display:flex;flex-direction:column;gap:20px}
+@media(min-width:640px){.hero-content{padding:40px 0}.hero-flex{flex-direction:row;align-items:flex-end;justify-content:space-between}}
+.hero-tag{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.hero-tag-line{height:1px;width:32px;background:linear-gradient(90deg,#C9A96E,transparent)}
+.hero-tag-text{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold)}
+.hero h2{font-family:var(--font-display);font-size:28px;font-weight:700;line-height:1.2;color:var(--text-primary)}
+.hero-desc{font-size:13px;margin-top:6px;max-width:480px;color:var(--text-secondary);line-height:1.6}
+.hero-stats{display:flex;align-items:center;gap:20px}
+.hero-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;color:var(--text-faint)}
+.hero-stat-value{font-family:var(--font-mono);font-size:28px;font-weight:700;line-height:1}
+.hero-stat-divider{width:1px;height:40px;background:rgba(201,169,110,0.2)}
+.hero-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,110,0.12),transparent)}
+
+/* ===== SECTION HEADER ===== */
+.section-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.section-bar{width:6px;height:24px;border-radius:99px}
+.section-bar-gold{background:linear-gradient(180deg,#C9A96E,#D4B87A)}
+.section-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-primary)}
+.section-subtitle{font-size:12px;margin-left:4px;color:var(--text-muted)}
+.section-sub-desc{font-size:12px;margin-top:2px;color:var(--text-muted)}
+
+/* ===== INVESTOR STYLE SELECTOR ===== */
+.style-section{padding:24px 0}
+.style-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:640px){.style-grid{grid-template-columns:repeat(3,1fr)}}
+.style-card{position:relative;text-align:left;border-radius:16px;padding:24px;overflow:hidden;transition:all 0.35s ease;
+  background:var(--glass-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--glass-border);box-shadow:var(--shadow-sm)}
+.style-card:hover{transform:translateY(-5px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.style-card.active{background:var(--glass-bg-active);box-shadow:var(--shadow-md)}
+.style-card-bar{position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.5s}
+.style-card.active .style-card-bar{opacity:1}
+.style-card-glow{position:absolute;top:0;right:0;width:128px;height:128px;border-radius:50%;transform:translate(20%,-30%);opacity:0.3;transition:opacity 0.5s}
+.style-card.active .style-card-glow{opacity:1}
+.style-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.style-icon-name{display:flex;align-items:center;gap:12px}
+.style-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:rgba(201,169,110,0.04);border:1px solid rgba(201,169,110,0.08);transition:all 0.3s}
+.style-card.active .style-icon{border-color:currentColor}
+.style-name{font-family:var(--font-display);font-size:16px;font-weight:700;line-height:1.2;transition:color 0.3s;color:var(--text-primary)}
+.style-subtitle{font-size:11px;font-weight:500;color:var(--text-muted);transition:color 0.3s}
+.style-check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(201,169,110,0.15);transition:all 0.3s;flex-shrink:0;margin-top:2px}
+.style-card.active .style-check{border-color:currentColor;background:currentColor}
+.style-check svg{display:none}
+.style-card.active .style-check svg{display:block}
+.style-desc{font-size:12px;line-height:1.6;color:var(--text-secondary);margin-bottom:12px}
+.style-suitable{font-size:11px;padding:6px 10px;border-radius:8px;display:inline-block;transition:all 0.3s;
+  background:rgba(201,169,110,0.03);color:var(--text-muted);border:1px solid rgba(201,169,110,0.06)}
+.style-dims{margin-top:12px;padding-top:12px;overflow:hidden;max-height:0;opacity:0;transition:all 0.35s ease}
+.style-card.active .style-dims{max-height:200px;opacity:1}
+.style-dims-label{font-size:10px;font-weight:500;margin-bottom:6px}
+.style-dims-tags{display:flex;flex-wrap:wrap;gap:4px}
+.style-dim-tag{font-size:10px;padding:2px 6px;border-radius:4px;color:var(--text-secondary)}
+
+/* ===== STRATEGY SELECTOR ===== */
+.strategy-section{padding:20px 0}
+.strategy-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+@media(min-width:640px){.strategy-scroll{display:grid;grid-template-columns:repeat(5,1fr);overflow:visible;padding-bottom:0}}
+.strategy-card{position:relative;padding:16px;border-radius:12px;text-align:left;transition:all 0.3s;flex-shrink:0;width:160px;scroll-snap-align:start;
+  background:rgba(255,255,252,0.45);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(201,169,110,0.08);box-shadow:var(--shadow-sm)}
+@media(min-width:640px){.strategy-card{width:auto}}
+.strategy-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.strategy-card.active{background:rgba(255,255,252,0.9);border:1.5px solid rgba(201,169,110,0.45);box-shadow:var(--shadow-md)}
+.strategy-card-line{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:2px;border-radius:99px;
+  width:0;transition:width 0.5s;background:linear-gradient(90deg,transparent,#C9A96E,transparent)}
+.strategy-card.active .strategy-card-line{width:50%}
+.strategy-icon{font-size:28px;margin-bottom:10px;line-height:1}
+.strategy-name{font-family:var(--font-display);font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;transition:color 0.3s;color:var(--text-primary)}
+.strategy-card.active .strategy-name{color:var(--gold-dark)}
+.strategy-desc-text{font-size:11px;line-height:1.5;color:var(--text-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ===== STOCK CARDS ===== */
+.stock-section{padding:16px 0}
+.stock-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:640px){.stock-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.stock-grid{grid-template-columns:repeat(3,1fr)}}
+.stock-card{padding:18px;border-radius:12px;cursor:pointer;transition:all 0.3s;
+  background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:var(--shadow-sm)}
+.stock-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.stock-card.active{background:var(--glass-bg-active);box-shadow:var(--shadow-md)}
+.stock-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.stock-name{font-family:var(--font-display);font-size:15px;font-weight:600;line-height:1.2;color:var(--text-primary)}
+.stock-code{font-family:var(--font-mono);font-size:11px;margin-top:2px;display:inline-block;color:var(--text-faint)}
+.risk-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:99px;flex-shrink:0}
+.risk-low{background:rgba(46,139,106,0.08);color:#2E8B6A;border:1px solid rgba(46,139,106,0.15)}
+.risk-mid{background:rgba(201,169,110,0.08);color:#B8963E;border:1px solid rgba(201,169,110,0.15)}
+.risk-high{background:rgba(192,82,82,0.08);color:#C05252;border:1px solid rgba(192,82,82,0.15)}
+.style-match-badge{font-size:11px;font-weight:500;padding:6px 10px;border-radius:8px;margin-bottom:12px}
+.stock-middle{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.score-price-wrap{display:flex;align-items:center;gap:10px}
+.score-ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;width:50px;height:50px;flex-shrink:0}
+.score-ring-bg{fill:none;stroke:rgba(201,169,110,0.06);stroke-width:3}
+.score-ring-fg{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)}
+.score-value{position:absolute;font-family:var(--font-mono);font-size:13px;font-weight:700}
+.score-label{font-size:10px;margin-bottom:2px;color:var(--text-faint)}
+.stock-price{font-family:var(--font-mono);font-size:18px;font-weight:700;line-height:1}
+.mini-chart{flex-shrink:0}
+.stock-change-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.change-badge{font-family:var(--font-mono);font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px}
+.change-value{font-family:var(--font-mono);font-size:11px}
+.stock-indicators{display:flex;align-items:center;gap:10px;font-size:11px;margin-left:auto}
+.indicator-label{color:var(--text-faint)}
+.indicator-value{font-family:var(--font-mono);color:#4A4A45}
+.indicator-sep{width:1px;height:12px;background:rgba(201,169,110,0.15);display:inline-block}
+.stock-reason{font-size:11px;line-height:1.6;padding:10px;border-radius:8px;
+  background:rgba(201,169,110,0.035);border-left:2px solid rgba(201,169,110,0.25);color:var(--text-secondary)}
+.stock-reason-tag{font-size:10px;font-weight:600;color:var(--gold)}
+.stock-reason-sep{margin:0 4px;color:rgba(201,169,110,0.3)}
+.stock-risk-note{margin-top:8px;font-size:10px;line-height:1.5;padding:0 10px;color:var(--text-faint)}
+.stock-risk-note span{color:var(--red);font-size:9px}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{border-radius:12px;padding:56px 20px;text-align:center;
+  background:rgba(255,255,252,0.4);border:1px dashed rgba(201,169,110,0.15)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.2}
+.empty-text{font-size:14px;color:var(--text-faint)}
+
+/* ===== DETAIL CHART ===== */
+.chart-section{padding:20px 0}
+.chart-wrap{border-radius:12px;overflow:hidden;
+  background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.12);box-shadow:0 4px 24px rgba(0,0,0,0.03)}
+.chart-header{display:flex;flex-direction:column;gap:12px;padding:20px 24px 12px}
+@media(min-width:640px){.chart-header{flex-direction:row;align-items:center;justify-content:space-between}}
+.chart-stock-info{display:flex;align-items:center;gap:12px}
+.chart-stock-name{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-primary)}
+.chart-stock-code{font-family:var(--font-mono);font-size:12px;color:var(--text-faint)}
+.chart-stock-price{font-family:var(--font-mono);font-size:20px;font-weight:700;margin-top:2px}
+.chart-stock-change{font-family:var(--font-mono);font-size:14px;font-weight:500}
+.chart-tabs{display:flex;align-items:center;border-radius:8px;padding:3px;background:rgba(201,169,110,0.05);flex-shrink:0}
+.chart-tab{padding:6px 12px;font-size:11px;font-weight:500;border-radius:6px;transition:all 0.3s;color:var(--text-muted)}
+.chart-tab.active{background:rgba(255,255,252,0.9);color:var(--gold-dark);box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.chart-canvas-wrap{padding:8px 16px 16px;height:320px}
+@media(min-width:640px){.chart-canvas-wrap{height:360px}}
+.chart-footer{display:flex;flex-direction:column;gap:8px;padding:12px 24px;border-top:1px solid rgba(201,169,110,0.06);font-size:11px}
+@media(min-width:640px){.chart-footer{flex-direction:row;align-items:center;justify-content:space-between}}
+.chart-legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;color:var(--text-muted)}
+.legend-line{width:16px;height:2px;border-radius:99px}
+.legend-bar{width:12px;height:10px;border-radius:2px}
+.chart-indicators{display:flex;align-items:center;gap:16px;color:var(--text-muted)}
+.chart-indicators span{font-family:var(--font-mono);font-weight:500}
+
+/* ===== FOOTER ===== */
+.footer{padding:24px 0;margin-top:8px}
+.footer-divider{height:1px;margin-bottom:24px;background:linear-gradient(90deg,transparent,rgba(201,169,110,0.1),transparent)}
+.footer-inner{display:flex;flex-direction:column;align-items:center;gap:12px}
+@media(min-width:640px){.footer-inner{flex-direction:row;justify-content:space-between}}
+.footer-disclaimer{font-size:11px;text-align:center;color:var(--text-faint);line-height:1.7;max-width:640px}
+@media(min-width:640px){.footer-disclaimer{text-align:left}}
+.footer-disclaimer .warn{color:var(--gold);font-size:10px}
+.footer-links{display:flex;align-items:center;gap:16px;flex-shrink:0}
+.footer-links a{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint);text-decoration:none;transition:color 0.3s}
+.footer-links a:hover{color:var(--gold)}
+.footer-built{font-size:10px;color:var(--text-ghost)}
+
+/* Utility */
+.text-green{color:var(--green)}.text-red{color:var(--red)}.text-gold{color:var(--gold)}
+.bg-green-light{background:rgba(46,139,106,0.07)}.bg-red-light{background:rgba(192,82,82,0.07)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar anim-fade-up" style="animation-delay:0s">
+  <div class="container navbar-inner">
+    <div class="logo-wrap">
+      <div class="logo-icon">AI</div>
+      <div class="logo-text logo-text-full">
+        <h1>AI Stock Workbench</h1>
+        <p>AI选股工作台 · 投资大师风格引擎</p>
+      </div>
+      <div class="logo-text logo-text-mobile">
+        <h1 style="font-family:var(--font-display);font-size:14px;font-weight:700">AI选股</h1>
+      </div>
+    </div>
+    <div class="market-toggle" id="marketToggle">
+      <button class="market-btn active" data-market="A">A股</button>
+      <button class="market-btn" data-market="US">美股</button>
+    </div>
+    <div class="risk-wrap">
+      <span class="risk-label">风险偏好</span>
+      <div id="riskToggle">
+        <button class="risk-btn" data-risk="conservative">稳健</button>
+        <button class="risk-btn active" data-risk="balanced">平衡</button>
+        <button class="risk-btn" data-risk="aggressive">激进</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content anim-fade-up" style="animation-delay:0.1s">
+    <div class="hero-flex">
+      <div>
+        <div class="hero-tag">
+          <div class="hero-tag-line"></div>
+          <span class="hero-tag-text">Investor Style Engine</span>
+        </div>
+        <h2 id="heroTitle">A股智能选股</h2>
+        <p class="hero-desc">将巴菲特、ARK、彼得林奇等投资大师的公开理念转化为量化因子，AI驱动智能筛选</p>
+      </div>
+      <div class="hero-stats">
+        <div style="text-align:right">
+          <div class="hero-stat-label">推荐标的</div>
+          <div class="hero-stat-value text-gold" id="heroCount">4</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div style="text-align:right">
+          <div class="hero-stat-label">平均风格评分</div>
+          <div class="hero-stat-value text-green" id="heroAvg">86.3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- ===== INVESTOR STYLE SELECTOR ===== -->
+<section class="style-section anim-fade-up" style="animation-delay:0.15s">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-bar section-bar-gold" style="width:6px"></div>
+      <div>
+        <div class="section-title">投资大师风格引擎</div>
+        <div class="section-sub-desc">选择投资风格，AI将按该大师的理念筛选标的</div>
+      </div>
+    </div>
+    <div class="style-grid" id="styleGrid"></div>
+  </div>
+</section>
+
+<!-- ===== STRATEGY SELECTOR ===== -->
+<section class="strategy-section anim-fade-up" style="animation-delay:0.2s">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-bar section-bar-gold" style="width:4px;height:20px"></div>
+      <div class="section-title" style="font-size:18px">策略选择</div>
+      <div class="section-subtitle">选择AI选股策略</div>
+    </div>
+    <div class="strategy-scroll" id="strategyScroll"></div>
+  </div>
+</section>
+
+<!-- ===== STOCK CARDS ===== -->
+<section class="stock-section">
+  <div class="container">
+    <div class="section-header anim-fade-up" style="animation-delay:0.25s" id="stockHeader">
+      <div class="section-bar" style="width:4px;height:20px;background:linear-gradient(180deg,#C9A96E,#D4B87A)"></div>
+      <div class="section-title" style="font-size:18px">AI选股结果</div>
+      <div class="section-subtitle">共 <span id="stockCount" style="font-family:var(--font-mono);color:#C9A96E;font-weight:600">0</span> 只推荐</div>
+    </div>
+    <div id="stockGrid"></div>
+  </div>
+</section>
+
+<!-- ===== DETAIL CHART ===== -->
+<section class="chart-section" id="chartSection">
+  <div class="container">
+    <div id="chartContainer"></div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer anim-fade-up" style="animation-delay:0.4s">
+  <div class="footer-divider"></div>
+  <div class="container">
+    <div class="footer-inner">
+      <p class="footer-disclaimer">
+        <span class="warn">&#9888;</span>
+        本模型只是将公开投资理念转化为量化筛选因子，用于研究和教育，不代表巴菲特、芒格、Cathie Wood 或 ARK 的真实投资意见，也不构成投资建议。投资有风险，入市需谨慎。
+      </p>
+      <div class="footer-links">
+        <a href="https://github.com/davidwuw0811-boop/ai-stock-workbench" target="_blank" rel="noopener noreferrer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <span class="footer-built">Built with AI</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* AI Stock Workbench — Application Data */
+
+function seededRandom(seed){const x=Math.sin(seed)*10000;return x-Math.floor(x)}
+function generatePriceData(base,vol,trend,seed){
+  const prices=[],volumes=[];let price=base*(1-trend*0.15);
+  for(let i=0;i<30;i++){const c=(seededRandom(seed+i*7)-0.48)*vol*price+trend*price*0.005;
+    price=Math.max(price*0.9,price+c);prices.push(Math.round(price*100)/100);
+    volumes.push(Math.round(50000+seededRandom(seed+i*13)*200000))}
+  return{prices,volumes}}
+function calcMA(prices,period){return prices.map((_,i)=>{if(i<period-1)return null;
+  const s=prices.slice(i-period+1,i+1);return Math.round(s.reduce((a,b)=>a+b,0)/period*100)/100})}
+
+const investorStyles=[
+  {id:'buffett',name:'巴菲特-芒格',subtitle:'高质量价值',icon:'\u{1F3DB}\uFE0F',
+   description:'高ROE、低负债、强现金流、护城河',
+   accentColor:'#2C5282',accentBg:'rgba(44,82,130,0.06)',accentBorder:'rgba(44,82,130,0.18)',
+   scoreDimensions:['ROE评分(20%)','负债评分(15%)','盈利稳定性(15%)','自由现金流(15%)','护城河(15%)','估值(15%)','管理层(5%)'],
+   suitableFor:'消费、金融、软件龙头、平台型公司'},
+  {id:'ark',name:'木头姐 ARK',subtitle:'颠覆式创新成长',icon:'\u{1F680}',
+   description:'高增长、高研发、强主题、大市场空间',
+   accentColor:'#6B46C1',accentBg:'rgba(107,70,193,0.06)',accentBorder:'rgba(107,70,193,0.18)',
+   scoreDimensions:['主题契合度(25%)','收入增长(20%)','研发强度(15%)','平台潜力(15%)','市场空间(15%)','估值风险扣分(-10%)'],
+   suitableFor:'AI、机器人、自动驾驶、创新药、芯片'},
+  {id:'lynch',name:'彼得林奇',subtitle:'成长合理估值',icon:'\u{1F331}',
+   description:'PEG合理、盈利增长、业务易懂、中小市值',
+   accentColor:'#276749',accentBg:'rgba(39,103,73,0.06)',accentBorder:'rgba(39,103,73,0.18)',
+   scoreDimensions:['PEG合理性(25%)','盈利增长(20%)','业务可理解性(15%)','财务健康(15%)','成长空间(15%)','估值(10%)'],
+   suitableFor:'成长股但估值不离谱'}
+];
+
+const strategies=[
+  {id:'fundamental',name:'基本面多因子',icon:'\u{1F4CA}',description:'基于PE、ROE、营收增速等多维财务指标综合筛选'},
+  {id:'momentum',name:'动量趋势',icon:'\u{1F4C8}',description:'捕捉价格动量与趋势突破信号'},
+  {id:'sentiment',name:'情绪分析',icon:'\u{1F4AC}',description:'基于新闻舆情与社交媒体情绪量化分析'},
+  {id:'finrl',name:'FinRL强化学习',icon:'\u{1F916}',description:'深度强化学习算法自动优化交易策略'},
+  {id:'llm',name:'LLM投研Agent',icon:'\u{1F9E0}',description:'大语言模型驱动的智能投研分析助手'}
+];
+
+const aStockRaw=[
+  {name:'贵州茅台',code:'600519.SH',base:1680,vol:0.015,trend:0.3,seed:42,pe:25.3,roe:32.1,score:92,risk:'low',
+   reason:'AI模型识别到白酒龙头估值合理，ROE持续领先行业，机构持仓稳定增长',strats:['fundamental','llm'],
+   styles:{buffett:{styleScore:95,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
+     styleReason:'长期ROE超30%，自由现金流充沛，品牌护城河极深，消费者心智垄断地位稳固，定价权强劲',
+     styleRisk:'估值略高于历史中枢，需关注消费降级风险'},
+   lynch:{styleScore:72,matchDescription:'部分符合林奇成长合理估值框架',
+     styleReason:'业务简单易懂，盈利持续增长，但市值偏大、PEG偏高',
+     styleRisk:'大市值白马，成长空间有限，PEG不够理想'}}},
+  {name:'宁德时代',code:'300750.SZ',base:218,vol:0.025,trend:0.5,seed:88,pe:22.8,roe:21.5,score:87,risk:'mid',
+   reason:'新能源电池全球龙头，海外产能扩张加速，动量指标显示上升趋势',strats:['momentum','finrl'],
+   styles:{ark:{styleScore:91,matchDescription:'高度契合ARK颠覆式创新成长框架',
+     styleReason:'全球动力电池龙头，储能+固态电池双赛道布局，研发投入行业领先，平台化能力强',
+     styleRisk:'行业竞争加剧，产能过剩风险需关注'},
+   lynch:{styleScore:78,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG接近1，盈利增速可观，业务逻辑清晰，全球市占率持续提升',
+     styleRisk:'周期性波动较大，需关注原材料价格'}}},
+  {name:'比亚迪',code:'002594.SZ',base:295,vol:0.022,trend:0.6,seed:55,pe:28.5,roe:18.7,score:85,risk:'mid',
+   reason:'新能源汽车销量持续创新高，海外市场拓展顺利，情绪面积极',strats:['sentiment','momentum'],
+   styles:{ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新成长框架',
+     styleReason:'垂直整合新能源汽车全产业链，自动驾驶+智能化布局加速，海外市场高速增长',
+     styleRisk:'竞争格局激烈，利润率承压风险'}}},
+  {name:'中国平安',code:'601318.SH',base:48,vol:0.018,trend:0.2,seed:33,pe:8.5,roe:15.2,score:78,risk:'low',
+   reason:'保险龙头估值处于历史低位，股息率具有吸引力，基本面稳健',strats:['fundamental','llm'],
+   styles:{buffett:{styleScore:82,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
+     styleReason:'保险浮存金模式天然具备投资杠杆，ROE稳定，低估值高股息，综合金融护城河',
+     styleRisk:'地产敞口仍需消化，投资端收益率承压'}}},
+  {name:'招商银行',code:'600036.SH',base:35,vol:0.012,trend:0.15,seed:77,pe:6.2,roe:16.8,score:81,risk:'low',
+   reason:'零售银行标杆，净息差韧性强，分红率提升预期明确',strats:['fundamental','finrl'],
+   styles:{buffett:{styleScore:88,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
+     styleReason:'零售银行护城河深厚，ROE行业领先，资产质量优异，管理层治理优秀，分红稳定',
+     styleRisk:'银行业整体净息差收窄趋势，宏观经济不确定性'}}},
+  {name:'隆基绿能',code:'601012.SH',base:22,vol:0.03,trend:-0.3,seed:99,pe:12.1,roe:14.3,score:65,risk:'high',
+   reason:'光伏行业产能过剩压力仍在，但BC电池技术领先，长期价值待释放',strats:['sentiment','llm'],
+   styles:{lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
+     styleReason:'PE处于历史低位，BC电池技术领先，业务模式清晰易懂，行业出清后有望受益',
+     styleRisk:'行业产能严重过剩，短期盈利承压明显'}}},
+  {name:'中芯国际',code:'688981.SH',base:52,vol:0.028,trend:0.4,seed:120,pe:45.2,roe:8.5,score:79,risk:'high',
+   reason:'国产半导体龙头，受益于国产替代大趋势，产能利用率回升',strats:['sentiment','momentum'],
+   styles:{ark:{styleScore:85,matchDescription:'较好契合ARK颠覆式创新成长框架',
+     styleReason:'半导体国产替代核心标的，先进制程持续突破，研发投入强度高，市场空间巨大',
+     styleRisk:'地缘政治风险，技术封锁不确定性，估值偏高'}}},
+  {name:'迈瑞医疗',code:'300760.SZ',base:285,vol:0.018,trend:0.25,seed:135,pe:28.8,roe:29.5,score:83,risk:'mid',
+   reason:'医疗器械龙头，海外收入占比持续提升，研发管线丰富',strats:['fundamental','llm'],
+   styles:{lynch:{styleScore:86,matchDescription:'高度符合林奇成长合理估值框架',
+     styleReason:'PEG接近1，盈利增速稳健，医疗器械业务易懂，财务健康，海外成长空间广阔',
+     styleRisk:'集采政策风险，海外拓展不确定性'},
+   buffett:{styleScore:80,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
+     styleReason:'ROE接近30%，医疗器械赛道护城河深，品牌+渠道+研发三重壁垒',
+     styleRisk:'估值不算便宜，需关注政策扰动'}}}
+];
+
+const usStockRaw=[
+  {name:'Apple',code:'AAPL',base:198,vol:0.015,trend:0.4,seed:111,pe:32.5,roe:147.2,score:91,risk:'low',
+   reason:'AI identifies strong ecosystem moat, Services revenue acceleration, and positive momentum signals',strats:['fundamental','momentum'],
+   styles:{buffett:{styleScore:93,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
+     styleReason:'极致的品牌护城河，ROE超140%，自由现金流充沛，回购+分红股东回报优秀，生态系统粘性极强',
+     styleRisk:'估值处于历史高位，创新节奏放缓风险'}}},
+  {name:'NVIDIA',code:'NVDA',base:135,vol:0.035,trend:0.8,seed:222,pe:65.3,roe:89.5,score:94,risk:'mid',
+   reason:'AI芯片绝对龙头，数据中心需求爆发，FinRL模型给出强烈买入信号',strats:['finrl','momentum'],
+   styles:{ark:{styleScore:96,matchDescription:'极度契合ARK颠覆式创新成长框架',
+     styleReason:'AI基础设施绝对龙头，GPU+CUDA生态垄断，数据中心/自动驾驶/机器人三大平台，市场空间万亿级',
+     styleRisk:'估值极高，周期性风险，客户集中度'}}},
+  {name:'Microsoft',code:'MSFT',base:445,vol:0.014,trend:0.35,seed:333,pe:36.8,roe:38.2,score:89,risk:'low',
+   reason:'Cloud + AI双轮驱动，Copilot商业化加速，LLM Agent评估前景乐观',strats:['llm','fundamental'],
+   styles:{buffett:{styleScore:90,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
+     styleReason:'Cloud+Office双护城河，ROE持续高位，自由现金流强劲，企业客户粘性极高，AI转型领先',
+     styleRisk:'估值偏高，反垄断监管风险'}}},
+  {name:'Alphabet',code:'GOOGL',base:178,vol:0.018,trend:0.3,seed:444,pe:24.2,roe:28.6,score:86,risk:'low',
+   reason:'搜索广告基本盘稳固，Gemini模型持续进化，估值相对合理',strats:['fundamental','llm'],
+   styles:{lynch:{styleScore:84,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG合理，搜索广告业务易懂且盈利稳健，Cloud增速可观，估值在科技巨头中最具性价比',
+     styleRisk:'AI对搜索模式的颠覆风险，反垄断诉讼'},
+   buffett:{styleScore:83,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
+     styleReason:'搜索广告护城河极深，ROE稳健，现金储备充裕，估值合理',
+     styleRisk:'AI颠覆搜索的长期风险'}}},
+  {name:'Tesla',code:'TSLA',base:255,vol:0.04,trend:0.2,seed:555,pe:72.1,roe:22.4,score:73,risk:'high',
+   reason:'社交媒体情绪波动大，FSD进展是关键催化剂，短期波动风险较高',strats:['sentiment','finrl'],
+   styles:{ark:{styleScore:92,matchDescription:'高度契合ARK颠覆式创新成长框架',
+     styleReason:'自动驾驶+机器人+能源三大颠覆性平台，FSD商业化潜力巨大，Optimus人形机器人开辟新赛道',
+     styleRisk:'估值极高，执行风险大，竞争加剧'}}},
+  {name:'Amazon',code:'AMZN',base:198,vol:0.02,trend:0.45,seed:666,pe:42.5,roe:19.8,score:84,risk:'mid',
+   reason:'AWS增速回暖，零售利润率改善，强化学习模型看好中期走势',strats:['finrl','momentum'],
+   styles:{lynch:{styleScore:80,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'电商+云计算业务模式清晰，盈利增速回升，AWS成长空间仍然广阔',
+     styleRisk:'估值偏高，零售竞争激烈，资本开支压力'}}},
+  {name:'Berkshire',code:'BRK.B',base:468,vol:0.01,trend:0.2,seed:777,pe:9.8,roe:15.5,score:80,risk:'low',
+   reason:'巴菲特旗舰，多元化投资组合，保险浮存金模式稳健',strats:['fundamental'],
+   styles:{buffett:{styleScore:98,matchDescription:'完美符合巴菲特-芒格式质量价值筛选',
+     styleReason:'巴菲特亲自管理的旗舰公司，保险浮存金+优质资产组合，低估值高安全边际，现金储备创历史新高',
+     styleRisk:'管理层接班风险，体量过大增长放缓'}}},
+  {name:'Palantir',code:'PLTR',base:24,vol:0.045,trend:0.7,seed:888,pe:185,roe:12.3,score:76,risk:'high',
+   reason:'AI平台概念龙头，政府+商业双轮驱动，但估值极高',strats:['momentum','sentiment'],
+   styles:{ark:{styleScore:87,matchDescription:'较好契合ARK颠覆式创新成长框架',
+     styleReason:'AI数据分析平台龙头，AIP平台商业化加速，政府+企业双轮驱动，市场空间巨大',
+     styleRisk:'估值极度偏高，盈利能力待验证'}}}
+];
+
+function buildStock(raw,market){
+  const{prices,volumes}=generatePriceData(raw.base,raw.vol,raw.trend,raw.seed);
+  const cp=prices[prices.length-1],pp=prices[prices.length-2];
+  const change=Math.round((cp-pp)*100)/100;
+  const changePct=Math.round((change/pp)*10000)/100;
+  return{id:raw.code,name:raw.name,code:raw.code,market,aiScore:raw.score,price:cp,
+    change,changePercent:changePct,pe:raw.pe,roe:raw.roe,riskLevel:raw.risk,aiReason:raw.reason,
+    priceHistory:prices,volumeHistory:volumes,ma5:calcMA(prices,5),ma20:calcMA(prices,20),
+    strategies:raw.strats,investorStyles:raw.styles||{}}
+}
+
+const aStocks=aStockRaw.map(r=>buildStock(r,'A'));
+const usStocks=usStockRaw.map(r=>buildStock(r,'US'));
+
+const dateLabels=Array.from({length:30},(_,i)=>{
+  const d=new Date();d.setDate(d.getDate()-29+i);return`${d.getMonth()+1}/${d.getDate()}`});
+
+
+/* AI Stock Workbench — Application Logic & Rendering */
+
+// ===== STATE =====
+let state = {
+  market: 'A',
+  investorStyle: 'buffett',
+  strategy: null,
+  riskLevel: 'balanced',
+  selectedStock: null,
+  detailChart: null
+};
+
+function getActiveStyleObj() {
+  return investorStyles.find(s => s.id === state.investorStyle) || null;
+}
+
+function getFilteredStocks() {
+  let stocks = state.market === 'A' ? [...aStocks] : [...usStocks];
+  if (state.investorStyle) {
+    stocks = stocks.filter(s => s.investorStyles[state.investorStyle] !== undefined);
+  }
+  if (state.strategy) {
+    stocks = stocks.filter(s => s.strategies.includes(state.strategy));
+  }
+  if (state.riskLevel === 'conservative') {
+    stocks = stocks.filter(s => s.riskLevel === 'low');
+  } else if (state.riskLevel === 'balanced') {
+    stocks.sort((a, b) => {
+      const sa = state.investorStyle && a.investorStyles[state.investorStyle] ? a.investorStyles[state.investorStyle].styleScore : a.aiScore;
+      const sb = state.investorStyle && b.investorStyles[state.investorStyle] ? b.investorStyles[state.investorStyle].styleScore : b.aiScore;
+      return sb - sa;
+    });
+  }
+  return stocks;
+}
+
+function getAvgScore(stocks) {
+  if (!stocks.length) return 0;
+  const scores = stocks.map(s => {
+    if (state.investorStyle && s.investorStyles[state.investorStyle]) return s.investorStyles[state.investorStyle].styleScore;
+    return s.aiScore;
+  });
+  return scores.reduce((sum, sc) => sum + sc, 0) / scores.length;
+}
+
+// ===== RENDER FUNCTIONS =====
+
+function renderStyleCards() {
+  const grid = document.getElementById('styleGrid');
+  grid.innerHTML = investorStyles.map(st => {
+    const isActive = state.investorStyle === st.id;
+    return `
+      <button class="style-card ${isActive ? 'active' : ''}" data-style="${st.id}"
+        style="${isActive ? `border-color:${st.accentBorder}` : ''}">
+        <div class="style-card-bar" style="background:linear-gradient(90deg,${st.accentColor},${st.accentColor}80)"></div>
+        <div class="style-card-glow" style="background:radial-gradient(circle,${st.accentBg},transparent)"></div>
+        <div class="style-card-top">
+          <div class="style-icon-name">
+            <div class="style-icon" style="${isActive ? `border-color:${st.accentColor};background:${st.accentBg}` : ''}">${st.icon}</div>
+            <div>
+              <div class="style-name" style="${isActive ? `color:${st.accentColor}` : ''}">${st.name}</div>
+              <div class="style-subtitle" style="${isActive ? `color:${st.accentColor}` : ''}">${st.subtitle}</div>
+            </div>
+          </div>
+          <div class="style-check" style="${isActive ? `border-color:${st.accentColor};background:${st.accentColor}` : ''}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="style-desc">${st.description}</div>
+        <div class="style-suitable" style="${isActive ? `background:${st.accentBg};border-color:${st.accentBorder};color:${st.accentColor}` : ''}">
+          适合：${st.suitableFor}
+        </div>
+        <div class="style-dims" style="${isActive ? `border-top-color:${st.accentBorder}` : 'border-top:1px solid rgba(201,169,110,0.06)'}">
+          <div class="style-dims-label" style="color:${isActive ? st.accentColor : 'var(--text-muted)'}">评分维度</div>
+          <div class="style-dims-tags">
+            ${st.scoreDimensions.map(d => `<span class="style-dim-tag" style="background:${isActive ? st.accentBg : 'rgba(201,169,110,0.04)'};${isActive ? `color:${st.accentColor}` : ''}">${d}</span>`).join('')}
+          </div>
+        </div>
+      </button>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('.style-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.style;
+      state.investorStyle = state.investorStyle === id ? null : id;
+      state.selectedStock = null;
+      state.strategy = null;
+      renderAll();
+    });
+  });
+}
+
+function renderStrategyCards() {
+  const scroll = document.getElementById('strategyScroll');
+  scroll.innerHTML = strategies.map(st => {
+    const isActive = state.strategy === st.id;
+    return `
+      <button class="strategy-card ${isActive ? 'active' : ''}" data-strategy="${st.id}">
+        <div class="strategy-card-line"></div>
+        <div class="strategy-icon">${st.icon}</div>
+        <div class="strategy-name">${st.name}</div>
+        <div class="strategy-desc-text">${st.description}</div>
+      </button>
+    `;
+  }).join('');
+
+  scroll.querySelectorAll('.strategy-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.strategy;
+      state.strategy = state.strategy === id ? null : id;
+      state.selectedStock = null;
+      renderAll();
+    });
+  });
+}
+
+function createScoreRingSVG(score, size, accentColor) {
+  const sw = 3, r = (size - sw) / 2, c = 2 * Math.PI * r;
+  const offset = c - (score / 100) * c;
+  let color = accentColor || (score >= 85 ? '#C9A96E' : score >= 70 ? '#2E8B6A' : '#8B8B82');
+  return `
+    <svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" class="score-ring-bg"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" class="score-ring-fg"
+        stroke="${color}" stroke-dasharray="${c}" stroke-dashoffset="${offset}"
+        style="--ring-circumference:${c};--ring-offset:${offset};animation:scoreRing 1.2s cubic-bezier(0.4,0,0.2,1) both;filter:drop-shadow(0 0 3px ${color}33)"/>
+    </svg>
+    <span class="score-value" style="color:${color}">${score}</span>
+  `;
+}
+
+function createMiniChartCanvas(prices, id) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 100; canvas.height = 36;
+  canvas.style.width = '100px'; canvas.style.height = '36px';
+  canvas.id = 'mini-' + id;
+  setTimeout(() => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = 100, h = 36;
+    const min = Math.min(...prices), max = Math.max(...prices);
+    const range = max - min || 1;
+    const isUp = prices[prices.length - 1] >= prices[0];
+    const color = isUp ? '#2E8B6A' : '#C05252';
+    ctx.clearRect(0, 0, w, h);
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, isUp ? 'rgba(46,139,106,0.12)' : 'rgba(192,82,82,0.12)');
+    grad.addColorStop(1, 'rgba(250,250,248,0)');
+    ctx.beginPath();
+    prices.forEach((p, i) => {
+      const x = (i / (prices.length - 1)) * w;
+      const y = h - ((p - min) / range) * (h - 4) - 2;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    // Line
+    ctx.beginPath();
+    prices.forEach((p, i) => {
+      const x = (i / (prices.length - 1)) * w;
+      const y = h - ((p - min) / range) * (h - 4) - 2;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+  }, 10);
+  return canvas;
+}
+
+function renderStockCards() {
+  const stocks = getFilteredStocks();
+  const avg = getAvgScore(stocks);
+  const styleObj = getActiveStyleObj();
+
+  // Update hero
+  document.getElementById('heroTitle').textContent = (state.market === 'A' ? 'A股' : '美股') + '智能选股';
+  document.getElementById('heroCount').textContent = stocks.length;
+  document.getElementById('heroAvg').textContent = avg.toFixed(1);
+
+  // Update header
+  const headerTitle = document.querySelector('#stockHeader .section-title');
+  const headerBar = document.querySelector('#stockHeader .section-bar');
+  if (styleObj) {
+    headerTitle.textContent = styleObj.name + '选股结果';
+    headerBar.style.background = `linear-gradient(180deg,${styleObj.accentColor},${styleObj.accentColor}80)`;
+  } else {
+    headerTitle.textContent = 'AI选股结果';
+    headerBar.style.background = 'linear-gradient(180deg,#C9A96E,#D4B87A)';
+  }
+  document.getElementById('stockCount').textContent = stocks.length;
+  document.getElementById('stockCount').style.color = styleObj ? styleObj.accentColor : '#C9A96E';
+
+  const container = document.getElementById('stockGrid');
+  if (stocks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state anim-fade">
+        <div class="empty-icon">\u{1F50D}</div>
+        <p class="empty-text">当前筛选条件下暂无匹配标的，请尝试调整风格或策略</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  container.className = 'stock-grid';
+
+  stocks.forEach((stock, index) => {
+    const styleData = state.investorStyle ? stock.investorStyles[state.investorStyle] : null;
+    const displayScore = styleData ? styleData.styleScore : stock.aiScore;
+    const displayReason = styleData ? styleData.styleReason : stock.aiReason;
+    const displayRisk = styleData ? styleData.styleRisk : null;
+    const matchDesc = styleData ? styleData.matchDescription : null;
+    const isUp = stock.change >= 0;
+    const isSelected = state.selectedStock && state.selectedStock.id === stock.id;
+
+    const card = document.createElement('div');
+    card.className = `stock-card anim-fade-up ${isSelected ? 'active' : ''}`;
+    card.style.animationDelay = `${index * 0.06}s`;
+    if (isSelected && styleObj) {
+      card.style.borderColor = styleObj.accentBorder;
+    }
+
+    const riskClass = stock.riskLevel === 'low' ? 'risk-low' : stock.riskLevel === 'mid' ? 'risk-mid' : 'risk-high';
+    const riskLabel = stock.riskLevel === 'low' ? '低风险' : stock.riskLevel === 'mid' ? '中风险' : '高风险';
+
+    card.innerHTML = `
+      <div class="stock-top">
+        <div>
+          <div class="stock-name">${stock.name}</div>
+          <span class="stock-code">${stock.code}</span>
+        </div>
+        <span class="risk-badge ${riskClass}">${riskLabel}</span>
+      </div>
+      ${matchDesc ? `<div class="style-match-badge" style="background:${styleObj ? styleObj.accentBg : 'rgba(201,169,110,0.06)'};color:${styleObj ? styleObj.accentColor : '#C9A96E'};border:1px solid ${styleObj ? styleObj.accentBorder : 'rgba(201,169,110,0.15)'}">${matchDesc}</div>` : ''}
+      <div class="stock-middle">
+        <div class="score-price-wrap">
+          <div class="score-ring-wrap">
+            ${createScoreRingSVG(displayScore, 50, styleObj ? styleObj.accentColor : null)}
+          </div>
+          <div>
+            <div class="score-label">${styleData ? '风格评分' : 'AI评分'}</div>
+            <div class="stock-price" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${stock.market === 'A' ? '¥' : '$'}${stock.price.toFixed(2)}</div>
+          </div>
+        </div>
+        <div class="mini-chart" id="mc-${stock.id.replace(/\./g, '-')}"></div>
+      </div>
+      <div class="stock-change-row">
+        <span class="change-badge" style="background:${isUp ? 'rgba(46,139,106,0.07)' : 'rgba(192,82,82,0.07)'};color:${isUp ? 'var(--green)' : 'var(--red)'}">
+          ${isUp ? '+' : ''}${stock.changePercent.toFixed(2)}%
+        </span>
+        <span class="change-value" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">
+          ${isUp ? '+' : ''}${stock.change.toFixed(2)}
+        </span>
+        <div class="stock-indicators">
+          <span class="indicator-label">PE</span>
+          <span class="indicator-value">${stock.pe}</span>
+          <span class="indicator-sep"></span>
+          <span class="indicator-label">ROE</span>
+          <span class="indicator-value">${stock.roe}%</span>
+        </div>
+      </div>
+      <div class="stock-reason">
+        <span class="stock-reason-tag">${styleData ? '风格分析' : 'AI洞察'}</span>
+        <span class="stock-reason-sep">|</span>
+        ${displayReason}
+      </div>
+      ${displayRisk ? `<div class="stock-risk-note"><span>\u26A0</span> ${displayRisk}</div>` : ''}
+    `;
+
+    card.addEventListener('click', () => {
+      state.selectedStock = state.selectedStock && state.selectedStock.id === stock.id ? null : stock;
+      renderStockCards();
+      renderDetailChart();
+      if (state.selectedStock) {
+        document.getElementById('chartSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    container.appendChild(card);
+
+    // Insert mini chart canvas
+    const mcContainer = card.querySelector(`#mc-${stock.id.replace(/\./g, '-')}`);
+    if (mcContainer) {
+      mcContainer.appendChild(createMiniChartCanvas(stock.priceHistory, stock.id.replace(/\./g, '-')));
+    }
+  });
+}
+
+function renderDetailChart() {
+  const container = document.getElementById('chartContainer');
+  const stock = state.selectedStock;
+
+  if (!stock) {
+    container.innerHTML = '';
+    return;
+  }
+
+  if (state.detailChart) {
+    state.detailChart.destroy();
+    state.detailChart = null;
+  }
+
+  const isUp = stock.change >= 0;
+  const styleObj = getActiveStyleObj();
+  const accentColor = styleObj ? styleObj.accentColor : '#C9A96E';
+
+  container.innerHTML = `
+    <div class="chart-wrap anim-fade">
+      <div class="chart-header">
+        <div class="chart-stock-info">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="chart-stock-name">${stock.name}</span>
+              <span class="chart-stock-code">${stock.code}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+              <span class="chart-stock-price" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${stock.market === 'A' ? '¥' : '$'}${stock.price.toFixed(2)}</span>
+              <span class="chart-stock-change" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${isUp ? '+' : ''}${stock.changePercent.toFixed(2)}%</span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-tabs" id="chartTabs">
+          <button class="chart-tab active" data-view="all">综合视图</button>
+          <button class="chart-tab" data-view="price">价格</button>
+          <button class="chart-tab" data-view="volume">成交量</button>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="detailCanvas"></canvas>
+      </div>
+      <div class="chart-footer">
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-line" style="background:${accentColor}"></div>价格</div>
+          <div class="legend-item"><div class="legend-line" style="background:#C9A96E"></div>MA5</div>
+          <div class="legend-item"><div class="legend-line" style="background:#8B8B82;border-style:dashed"></div>MA20</div>
+          <div class="legend-item"><div class="legend-bar" style="background:rgba(201,169,110,0.2)"></div>成交量</div>
+        </div>
+        <div class="chart-indicators">
+          PE <span>${stock.pe}</span> &nbsp; ROE <span>${stock.roe}%</span> &nbsp; AI评分 <span style="color:${accentColor}">${stock.aiScore}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Chart tabs
+  document.querySelectorAll('#chartTabs .chart-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#chartTabs .chart-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      buildChart(stock, tab.dataset.view, accentColor);
+    });
+  });
+
+  buildChart(stock, 'all', accentColor);
+}
+
+function buildChart(stock, view, accentColor) {
+  if (state.detailChart) { state.detailChart.destroy(); state.detailChart = null; }
+  const canvas = document.getElementById('detailCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const datasets = [];
+  const yAxes = {};
+
+  if (view === 'all' || view === 'price') {
+    // Price line with gradient fill
+    datasets.push({
+      label: '价格',
+      data: stock.priceHistory,
+      borderColor: accentColor,
+      backgroundColor: (context) => {
+        const chart = context.chart;
+        const { ctx: c, chartArea } = chart;
+        if (!chartArea) return 'transparent';
+        const grad = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        grad.addColorStop(0, accentColor + '18');
+        grad.addColorStop(1, 'rgba(250,250,248,0)');
+        return grad;
+      },
+      fill: true,
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: accentColor,
+      tension: 0.3,
+      yAxisID: 'y',
+      order: 1
+    });
+
+    // MA5
+    datasets.push({
+      label: 'MA5',
+      data: stock.ma5,
+      borderColor: '#C9A96E',
+      borderWidth: 1,
+      borderDash: [],
+      pointRadius: 0,
+      tension: 0.3,
+      yAxisID: 'y',
+      order: 2
+    });
+
+    // MA20
+    datasets.push({
+      label: 'MA20',
+      data: stock.ma20,
+      borderColor: '#8B8B82',
+      borderWidth: 1,
+      borderDash: [4, 3],
+      pointRadius: 0,
+      tension: 0.3,
+      yAxisID: 'y',
+      order: 3
+    });
+
+    yAxes.y = {
+      type: 'linear',
+      position: 'left',
+      grid: { color: 'rgba(201,169,110,0.04)', drawBorder: false },
+      ticks: { font: { family: 'var(--font-mono)', size: 10 }, color: '#9B9B93', padding: 8 }
+    };
+  }
+
+  if (view === 'all' || view === 'volume') {
+    datasets.push({
+      label: '成交量',
+      data: stock.volumeHistory,
+      backgroundColor: stock.priceHistory.map((p, i) => {
+        if (i === 0) return 'rgba(201,169,110,0.15)';
+        return p >= stock.priceHistory[i - 1] ? 'rgba(46,139,106,0.15)' : 'rgba(192,82,82,0.15)';
+      }),
+      borderRadius: 2,
+      yAxisID: view === 'volume' ? 'y' : 'y1',
+      type: 'bar',
+      order: 4
+    });
+
+    const volAxisId = view === 'volume' ? 'y' : 'y1';
+    yAxes[volAxisId] = {
+      type: 'linear',
+      position: view === 'volume' ? 'left' : 'right',
+      grid: { display: view === 'volume', color: 'rgba(201,169,110,0.04)', drawBorder: false },
+      ticks: {
+        font: { family: 'var(--font-mono)', size: 10 }, color: '#CDCDC5', padding: 8,
+        callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v
+      },
+      max: view === 'all' ? Math.max(...stock.volumeHistory) * 3 : undefined
+    };
+  }
+
+  state.detailChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dateLabels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,252,0.95)',
+          titleColor: '#1A1A1A',
+          bodyColor: '#6B6B63',
+          borderColor: 'rgba(201,169,110,0.15)',
+          borderWidth: 1,
+          titleFont: { family: 'var(--font-display)', weight: '600', size: 12 },
+          bodyFont: { family: 'var(--font-mono)', size: 11 },
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: true,
+          boxWidth: 8,
+          boxHeight: 8,
+          boxPadding: 4,
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.dataset.label === '成交量') return '成交量: ' + (ctx.raw / 1000).toFixed(1) + 'k';
+              if (ctx.raw === null) return '';
+              return ctx.dataset.label + ': ' + ctx.raw.toFixed(2);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'var(--font-mono)', size: 9 }, color: '#CDCDC5', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+        },
+        ...yAxes
+      }
+    }
+  });
+}
+
+// ===== MARKET & RISK TOGGLES =====
+function setupToggles() {
+  document.querySelectorAll('#marketToggle .market-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.market = btn.dataset.market;
+      state.selectedStock = null;
+      document.querySelectorAll('#marketToggle .market-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    });
+  });
+
+  document.querySelectorAll('#riskToggle .risk-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.riskLevel = btn.dataset.risk;
+      document.querySelectorAll('#riskToggle .risk-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    });
+  });
+}
+
+function renderAll() {
+  renderStyleCards();
+  renderStrategyCards();
+  renderStockCards();
+  renderDetailChart();
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  setupToggles();
+  renderAll();
+});
+
+
+</script>
+</body>
+</html>
