@@ -250,26 +250,31 @@ def score_ark(data: Dict[str, Any]) -> Dict[str, Any]:
     rg_bonus = min(20, max(0, (data.get("revenue_growth") or 0) * 0.5))
     dims["市场空间"] = round(_clamp(base + rg_bonus, 0, 100))
 
-    # Valuation risk (penalty)
+    # Growth premium acceptance (Cathie Wood willingly pays high PE for high growth)
     pe = data.get("pe")
+    rg_val = data.get("revenue_growth") or 0
     if pe is not None and pe > 0:
-        if pe > 200:
-            dims["估值风险"] = -15
-        elif pe > 100:
-            dims["估值风险"] = -10
-        elif pe > 60:
-            dims["估值风险"] = -5
+        if pe > 100 and rg_val > 30:
+            # High PE but high growth = Cathie's sweet spot
+            dims["成长性溢价接受度"] = 85
+        elif pe > 60 and rg_val > 20:
+            dims["成长性溢价接受度"] = 75
+        elif pe > 40:
+            dims["成长性溢价接受度"] = 65
+        elif pe > 20:
+            dims["成长性溢价接受度"] = 55
         else:
-            dims["估值风险"] = 0
+            # Low PE might mean low growth, less interesting to ARK
+            dims["成长性溢价接受度"] = 45
     else:
-        dims["估值风险"] = -5
+        dims["成长性溢价接受度"] = 50
 
     # Weighted total
     weights = {
         "主题契合度": 0.25, "收入增长": 0.20, "研发强度": 0.15,
-        "平台潜力": 0.15, "市场空间": 0.15,
+        "平台潜力": 0.15, "市场空间": 0.15, "成长性溢价接受度": 0.10,
     }
-    total = sum(dims[k] * weights[k] for k in weights) + dims["估值风险"]
+    total = sum(dims[k] * weights[k] for k in weights)
     total = round(_clamp(total, 0, 100))
 
     summary = _ark_summary(data, dims, total)
@@ -289,8 +294,8 @@ def _ark_summary(data: Dict, dims: Dict, score: int) -> str:
         parts.append("平台化潜力显著")
 
     risks = []
-    if dims["估值风险"] < -5:
-        risks.append("估值极高")
+    if dims.get("成长性溢价接受度", 50) < 50:
+        risks.append("估值与成长不匹配")
     if dims["主题契合度"] < 50:
         risks.append("非典型创新赛道")
     if dims["收入增长"] < 40:
