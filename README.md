@@ -4,8 +4,15 @@
 
 ## 在线体验
 
+### 🇨🇳 国内访问（无需翻墙）
+- **自定义域名版**：[https://stock.jinghezhigu.com](https://stock.jinghezhigu.com)
+
+### 🌍 境外访问
 - **GitHub Pages 版**：[https://davidwuw0811-boop.github.io/ai-stock-workbench/](https://davidwuw0811-boop.github.io/ai-stock-workbench/)
-- **后端 API**：`https://ai-stock-workbench-production.up.railway.app`
+- **Vercel 版**：[https://ai-stock-workbench.vercel.app](https://ai-stock-workbench.vercel.app)
+
+### 后端 API
+- **Railway**：`https://ai-stock-workbench-production.up.railway.app`
 
 ## 功能特性
 
@@ -123,7 +130,7 @@ curl http://localhost:8000/api/analyze/300624
 |------|------|
 | 前端（GitHub Pages版） | 纯 HTML/CSS/JS + Chart.js |
 | 后端 | FastAPI + yfinance |
-| 部署 | Railway（后端）+ GitHub Pages（前端） |
+| 部署 | Railway（后端）+ Vercel/GitHub Pages（前端）+ 自定义域名（国内访问） |
 
 ## 免责声明
 
