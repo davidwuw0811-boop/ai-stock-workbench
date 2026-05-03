@@ -388,7 +388,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
         <div>
           <h2>个股分析器</h2>
           <p>输入股票代码或名称，用所有投资风格和策略进行综合分析</p>
-          <p style="font-size:10px;color:var(--text-ghost);margin-top:2px" id="analyzerMode">📡 模式：本地模拟数据（配置API后可实时分析任意股票）</p>
+          <p style="font-size:10px;color:var(--text-ghost);margin-top:2px" id="analyzerMode">📡 模式：实时API数据 — 可分析任意A股/美股</p>
         </div>
       </div>
       <div class="analyzer-search">
@@ -1522,7 +1522,7 @@ function setupAnalyzer() {
   const hints = document.getElementById('analyzerHints');
 
   // Render hints
-  let hintsHtml = '<span>可分析：</span>';
+  let hintsHtml = '<span>热门推荐（支持任意股票）：</span>';
   analyzerDB.slice(0, 8).forEach(s => {
     hintsHtml += `<button class="analyzer-hint-btn" data-code="${s.code}" data-name="${s.name}">${s.name}</button>`;
   });
@@ -1530,9 +1530,8 @@ function setupAnalyzer() {
   hints.innerHTML = hintsHtml;
   hints.querySelectorAll('.analyzer-hint-btn').forEach(b => {
     b.addEventListener('click', () => {
-      input.value = b.dataset.name + ' ' + b.dataset.code;
-      const r = searchAnalyzerDB(b.dataset.code);
-      renderAnalyzerReport(r);
+      input.value = b.dataset.code;
+      doAnalyze(b.dataset.code);
       sugBox.classList.add('hidden');
     });
   });
@@ -1580,9 +1579,8 @@ function setupAnalyzer() {
     sugBox.classList.remove('hidden');
     sugBox.querySelectorAll('.analyzer-sug-item').forEach(item => {
       item.addEventListener('click', () => {
-        input.value = item.dataset.name + ' ' + item.dataset.code;
-        const r = searchAnalyzerDB(item.dataset.code);
-        renderAnalyzerReport(r);
+        input.value = item.dataset.code;
+        doAnalyze(item.dataset.code);
         sugBox.classList.add('hidden');
       });
     });
