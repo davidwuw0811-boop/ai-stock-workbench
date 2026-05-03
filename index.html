@@ -1353,7 +1353,7 @@ const analyzerDB = [
 // ===== API CONFIGURATION =====
 // Set this to your Railway backend URL, e.g. 'https://your-app.up.railway.app'
 // When empty, falls back to local mock data.
-const API_BASE_URL = '';
+const API_BASE_URL = 'https://ai-stock-workbench-production.up.railway.app';
 
 function searchAnalyzerDB(query) {
   const q = query.trim().toUpperCase();
@@ -1393,13 +1393,20 @@ async function analyzeViaAPI(query) {
   try {
     // Try search first
     const searchRes = await fetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}`);
+    if (!searchRes.ok) {
+      console.warn('Search API returned status:', searchRes.status);
+      return null;
+    }
     const searchData = await searchRes.json();
     let code = query.trim();
     if (searchData.results && searchData.results.length > 0) {
       code = searchData.results[0].code;
     }
     const res = await fetch(`${API_BASE_URL}/api/analyze/${encodeURIComponent(code)}`);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn('Analyze API returned status:', res.status);
+      return null;
+    }
     const data = await res.json();
     return apiResponseToReport(data);
   } catch (e) {
@@ -1536,9 +1543,21 @@ function setupAnalyzer() {
     // Try API first if configured
     if (API_BASE_URL) {
       container_report.innerHTML = '<div class="report-card"><div class="report-inner" style="text-align:center;padding:40px"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px;color:var(--text-muted)">正在从API获取实时数据并分析...</div></div></div>';
-      const apiResult = await analyzeViaAPI(q);
-      if (apiResult) {
-        renderAnalyzerReport(apiResult);
+      try {
+        const apiResult = await analyzeViaAPI(q);
+        if (apiResult) {
+          renderAnalyzerReport(apiResult);
+          return;
+        } else {
+          console.info('API returned no result, falling back to local data');
+        }
+      } catch (apiError) {
+        console.warn('API error occurred:', apiError);
+        container_report.innerHTML = '<div class="report-card"><div class="report-not-found"><div class="nf-icon">⚠️</div><p class="nf-text">API连接失败</p><p class="nf-sub">正在使用本地数据库进行分析...</p></div></div>';
+        setTimeout(() => {
+          const r = searchAnalyzerDB(q);
+          renderAnalyzerReport(r);
+        }, 1000);
         return;
       }
     }
