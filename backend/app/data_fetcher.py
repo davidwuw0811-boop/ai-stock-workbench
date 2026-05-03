@@ -67,6 +67,36 @@ def a_code_to_yfinance(code6: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Get Chinese stock name from Tencent API
+# ---------------------------------------------------------------------------
+def _get_chinese_name(code6: str) -> str:
+    """Fetch Chinese stock name from Tencent finance API."""
+    import urllib.request
+    try:
+        # Determine sh/sz prefix
+        if code6.startswith(('600', '601', '603', '605', '688')):
+            prefix = 'sh'
+        else:
+            prefix = 'sz'
+        url = f"http://qt.gtimg.cn/q={prefix}{code6}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            raw = resp.read()
+            # Try GBK decode
+            try:
+                text = raw.decode('gbk')
+            except Exception:
+                text = raw.decode('utf-8', errors='ignore')
+            # Parse: format is v_shXXXXXX="1~名称~..."
+            parts = text.split('~')
+            if len(parts) >= 2 and parts[1]:
+                return parts[1]
+    except Exception as e:
+        logger.warning(f"Failed to get Chinese name for {code6}: {e}")
+    return ""
+
+
+# ---------------------------------------------------------------------------
 # A-share data via yfinance (using .SS/.SZ suffix)
 # ---------------------------------------------------------------------------
 def fetch_a_share(code: str) -> Dict[str, Any]:
@@ -82,9 +112,12 @@ def fetch_a_share(code: str) -> Dict[str, Any]:
     yf_ticker = a_code_to_yfinance(code6)
     logger.info(f"Fetching A-share {code6} as yfinance ticker: {yf_ticker}")
 
+    # Get Chinese name first
+    cn_name = _get_chinese_name(code6)
+
     result: Dict[str, Any] = {
         "stock_code": code6,
-        "stock_name": "",
+        "stock_name": cn_name or "",
         "market": "A股",
         "current_price": None,
         "pe": None,
@@ -107,7 +140,9 @@ def fetch_a_share(code: str) -> Dict[str, Any]:
         stock = yf.Ticker(yf_ticker)
         info = stock.info or {}
 
-        result["stock_name"] = info.get("shortName") or info.get("longName") or code6
+        # Chinese name takes priority over yfinance English/pinyin name
+        if not cn_name:
+            result["stock_name"] = info.get("shortName") or info.get("longName") or code6
         result["current_price"] = _safe_float(info.get("currentPrice") or info.get("regularMarketPrice"))
         result["pe"] = _safe_float(info.get("trailingPE") or info.get("forwardPE"))
         result["pb"] = _safe_float(info.get("priceToBook"))
