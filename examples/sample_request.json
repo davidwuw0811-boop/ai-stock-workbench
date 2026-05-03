@@ -1,0 +1,6 @@
+{
+  "market": "US",
+  "strategies": ["fundamental", "momentum", "sentiment", "finrl", "llm_agent"],
+  "risk_profile": "balanced",
+  "top_n": 5
+}
