@@ -230,6 +230,89 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .footer-links a:hover{color:var(--gold)}
 .footer-built{font-size:10px;color:var(--text-ghost)}
 
+/* ===== STOCK ANALYZER ===== */
+.analyzer-section{padding:24px 0}
+.analyzer-box{border-radius:16px;padding:24px 32px;background:rgba(255,255,252,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(201,169,110,0.15);box-shadow:0 8px 32px rgba(201,169,110,0.06)}
+.analyzer-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.analyzer-header span{font-size:24px}
+.analyzer-header h2{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text-primary)}
+.analyzer-header p{font-size:12px;color:var(--text-muted)}
+.analyzer-search{display:flex;gap:12px}
+.analyzer-input-wrap{flex:1;position:relative}
+.analyzer-input{width:100%;padding:12px 16px;border-radius:12px;font-size:13px;outline:none;transition:all 0.3s;background:rgba(255,255,252,0.8);border:1px solid rgba(201,169,110,0.2);font-family:var(--font-body)}
+.analyzer-input:focus{border-color:rgba(201,169,110,0.5);box-shadow:0 0 0 3px rgba(201,169,110,0.08)}
+.analyzer-btn{padding:12px 24px;border-radius:12px;font-size:13px;font-weight:500;color:#fff;background:linear-gradient(135deg,#C9A96E,#B8963E);box-shadow:0 4px 12px rgba(201,169,110,0.3);transition:all 0.3s}
+.analyzer-btn:hover{transform:scale(1.02)}
+.analyzer-btn:active{transform:scale(0.98)}
+.analyzer-suggestions{position:absolute;top:100%;left:0;right:0;margin-top:4px;border-radius:12px;overflow:hidden;z-index:50;background:rgba(255,255,252,0.95);backdrop-filter:blur(12px);border:1px solid rgba(201,169,110,0.2);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.analyzer-sug-item{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;font-size:13px;transition:background 0.2s;text-align:left}
+.analyzer-sug-item:hover{background:rgba(201,169,110,0.08)}
+.analyzer-sug-item .sug-name{font-weight:500}
+.analyzer-sug-item .sug-code{font-size:11px;font-family:var(--font-mono);color:var(--text-muted)}
+.analyzer-hints{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.analyzer-hints span{font-size:11px;color:var(--text-muted)}
+.analyzer-hint-btn{font-size:11px;padding:2px 8px;border-radius:6px;color:var(--text-secondary);transition:background 0.2s}
+.analyzer-hint-btn:hover{background:rgba(201,169,110,0.1)}
+
+/* Report Card */
+.report-card{margin-top:16px;border-radius:16px;overflow:hidden;background:rgba(255,255,252,0.5);backdrop-filter:blur(16px);border:1px solid rgba(201,169,110,0.12);box-shadow:0 12px 48px rgba(201,169,110,0.06);animation:fadeInUp 0.5s ease-out}
+.report-inner{padding:24px 32px}
+.report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(201,169,110,0.1)}
+.report-header-left{display:flex;align-items:center;gap:16px}
+.report-score-box{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--gold);background:linear-gradient(135deg,rgba(201,169,110,0.15),rgba(201,169,110,0.05))}
+.report-stock-name{font-family:var(--font-display);font-size:18px;font-weight:600}
+.report-stock-code{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-left:6px}
+.report-stock-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.report-close{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:background 0.2s;font-size:14px}
+.report-close:hover{background:rgba(201,169,110,0.1)}
+.report-section-title{font-size:13px;font-weight:600;margin-bottom:16px;color:var(--text-primary)}
+
+/* Style Analysis Cards */
+.style-analysis-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:32px}
+@media(min-width:768px){.style-analysis-grid{grid-template-columns:repeat(3,1fr)}}
+.style-analysis-card{border-radius:16px;padding:20px;background:rgba(255,255,252,0.7);backdrop-filter:blur(12px);transition:all 0.3s}
+.style-analysis-card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.04)}
+.sa-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sa-ring{flex-shrink:0}
+.sa-title{font-size:13px;font-weight:600}
+.sa-comment{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+.sa-dims{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sa-dim{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:4px 8px;border-radius:4px}
+.sa-dim-name{color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sa-dim-score{font-family:var(--font-mono);font-weight:500}
+
+/* Strategy Signals */
+.signal-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+@media(min-width:768px){.signal-grid{grid-template-columns:repeat(3,1fr)}}
+.signal-card{border-radius:12px;padding:16px;background:rgba(255,255,252,0.7);border:1px solid rgba(201,169,110,0.1)}
+.signal-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.signal-name{font-size:12px;font-weight:500;color:var(--text-secondary)}
+.signal-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:500}
+.signal-bullish{background:rgba(46,139,106,0.1);color:#2E8B6A}
+.signal-neutral{background:rgba(201,169,110,0.1);color:#C9A96E}
+.signal-bearish{background:rgba(192,82,82,0.1);color:#C05252}
+.signal-reason{font-size:11px;color:var(--text-muted);line-height:1.6}
+
+/* Conclusion */
+.conclusion-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:640px){.conclusion-grid{grid-template-columns:1fr 1fr}}
+.conclusion-box{border-radius:12px;padding:16px}
+.conclusion-box.strengths{background:rgba(46,139,106,0.05);border:1px solid rgba(46,139,106,0.1)}
+.conclusion-box.risks{background:rgba(192,82,82,0.05);border:1px solid rgba(192,82,82,0.1)}
+.conclusion-label{font-size:12px;font-weight:600;margin-bottom:8px}
+.conclusion-label.green{color:var(--green)}
+.conclusion-label.red{color:var(--red)}
+.conclusion-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.conclusion-icon{flex-shrink:0;margin-top:2px}
+.conclusion-icon.green{color:var(--green)}
+.conclusion-icon.red{color:var(--red)}
+
+/* Not found */
+.report-not-found{padding:32px;text-align:center}
+.report-not-found .nf-icon{font-size:40px;margin-bottom:12px}
+.report-not-found .nf-text{font-size:13px;color:var(--text-secondary)}
+.report-not-found .nf-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+
 /* Utility */
 .text-green{color:var(--green)}.text-red{color:var(--red)}.text-gold{color:var(--gold)}
 .bg-green-light{background:rgba(46,139,106,0.07)}.bg-red-light{background:rgba(192,82,82,0.07)}
@@ -294,6 +377,30 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
     </div>
   </div>
   <div class="hero-divider"></div>
+</section>
+
+<!-- ===== STOCK ANALYZER ===== -->
+<section class="analyzer-section anim-fade-up" style="animation-delay:0.12s">
+  <div class="container">
+    <div class="analyzer-box">
+      <div class="analyzer-header">
+        <span>🔬</span>
+        <div>
+          <h2>个股分析器</h2>
+          <p>输入股票代码或名称，用所有投资风格和策略进行综合分析</p>
+        </div>
+      </div>
+      <div class="analyzer-search">
+        <div class="analyzer-input-wrap">
+          <input type="text" class="analyzer-input" id="analyzerInput" placeholder="输入股票代码或名称，如 AAPL、贵州茅台、NVDA" autocomplete="off">
+          <div class="analyzer-suggestions hidden" id="analyzerSuggestions"></div>
+        </div>
+        <button class="analyzer-btn" id="analyzerBtn">分析</button>
+      </div>
+      <div class="analyzer-hints" id="analyzerHints"></div>
+    </div>
+    <div id="analyzerReport"></div>
+  </div>
 </section>
 
 <!-- ===== INVESTOR STYLE SELECTOR ===== -->
@@ -406,12 +513,18 @@ const aStockRaw=[
    styles:{buffett:{styleScore:95,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
      styleReason:'长期ROE超30%，自由现金流充沛，品牌护城河极深，消费者心智垄断地位稳固，定价权强劲',
      styleRisk:'估值略高于历史中枢，需关注消费降级风险'},
+   ark:{styleScore:65,matchDescription:'部分符合ARK颠覆式创新框架',
+     styleReason:'传统消费品牌，不属于颠覆式创新赛道，但品牌数字化和全球化扩张有一定创新属性',
+     styleRisk:'非颠覆式创新标的，主题契合度偏低'},
    lynch:{styleScore:72,matchDescription:'部分符合林奇成长合理估值框架',
      styleReason:'业务简单易懂，盈利持续增长，但市值偏大、PEG偏高',
      styleRisk:'大市值白马，成长空间有限，PEG不够理想'}}},
   {name:'宁德时代',code:'300750.SZ',base:218,vol:0.025,trend:0.5,seed:88,pe:22.8,roe:21.5,score:87,risk:'mid',
    reason:'新能源电池全球龙头，海外产能扩张加速，动量指标显示上升趋势',strats:['momentum','finrl'],
-   styles:{ark:{styleScore:91,matchDescription:'高度契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:70,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
+     styleReason:'技术护城河深厚，但行业周期性强，资本开支大导致自由现金流偏弱',
+     styleRisk:'资本密集型业务，自由现金流不稳定'},
+   ark:{styleScore:91,matchDescription:'高度契合ARK颠覆式创新成长框架',
      styleReason:'全球动力电池龙头，储能+固态电池双赛道布局，研发投入行业领先，平台化能力强',
      styleRisk:'行业竞争加剧，产能过剩风险需关注'},
    lynch:{styleScore:78,matchDescription:'较好符合林奇成长合理估值框架',
@@ -419,37 +532,70 @@ const aStockRaw=[
      styleRisk:'周期性波动较大，需关注原材料价格'}}},
   {name:'比亚迪',code:'002594.SZ',base:295,vol:0.022,trend:0.6,seed:55,pe:28.5,roe:18.7,score:85,risk:'mid',
    reason:'新能源汽车销量持续创新高，海外市场拓展顺利，情绪面积极',strats:['sentiment','momentum'],
-   styles:{ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:68,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
+     styleReason:'垂直整合能力强，但资本密集型业务导致现金流偏弱',
+     styleRisk:'资本开支大，自由现金流不稳定'},
+   ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新成长框架',
      styleReason:'垂直整合新能源汽车全产业链，自动驾驶+智能化布局加速，海外市场高速增长',
-     styleRisk:'竞争格局激烈，利润率承压风险'}}},
+     styleRisk:'竞争格局激烈，利润率承压风险'},
+   lynch:{styleScore:75,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'业务容易理解，增长强劲，海外市场空间大',
+     styleRisk:'估值偏高，需要持续高增长支撑'}}},
   {name:'中国平安',code:'601318.SH',base:48,vol:0.018,trend:0.2,seed:33,pe:8.5,roe:15.2,score:78,risk:'low',
    reason:'保险龙头估值处于历史低位，股息率具有吸引力，基本面稳健',strats:['fundamental','llm'],
    styles:{buffett:{styleScore:82,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
      styleReason:'保险浮存金模式天然具备投资杠杆，ROE稳定，低估值高股息，综合金融护城河',
-     styleRisk:'地产敞口仍需消化，投资端收益率承压'}}},
+     styleRisk:'地产敞口仍需消化，投资端收益率承压'},
+   ark:{styleScore:72,matchDescription:'部分符合ARK颠覆式创新框架',
+     styleReason:'金融科技创新有亮点，但传统保险业务占比仍大',
+     styleRisk:'传统金融业务占比大，创新转化速度慢'},
+   lynch:{styleScore:74,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG合理，估值处于历史低位，但业务复杂度较高',
+     styleRisk:'业务复杂度高，不够简单易懂'}}},
   {name:'招商银行',code:'600036.SH',base:35,vol:0.012,trend:0.15,seed:77,pe:6.2,roe:16.8,score:81,risk:'low',
    reason:'零售银行标杆，净息差韧性强，分红率提升预期明确',strats:['fundamental','finrl'],
    styles:{buffett:{styleScore:88,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
      styleReason:'零售银行护城河深厚，ROE行业领先，资产质量优异，管理层治理优秀，分红稳定',
-     styleRisk:'银行业整体净息差收窄趋势，宏观经济不确定性'}}},
+     styleRisk:'银行业整体净息差收窄趋势，宏观经济不确定性'},
+   ark:{styleScore:68,matchDescription:'部分符合ARK颠覆式创新框架',
+     styleReason:'数字银行+金融科技创新有亮点，但传统银行业务占比大',
+     styleRisk:'传统银行模式，创新颠覆性不足'},
+   lynch:{styleScore:76,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG合理，估值极低，业务模式清晰',
+     styleRisk:'银行业增长空间有限'}}},
   {name:'隆基绿能',code:'601012.SH',base:22,vol:0.03,trend:-0.3,seed:99,pe:12.1,roe:14.3,score:65,risk:'high',
    reason:'光伏行业产能过剩压力仍在，但BC电池技术领先，长期价值待释放',strats:['sentiment','llm'],
-   styles:{lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
+   styles:{buffett:{styleScore:58,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
+     styleReason:'光伏龙头有一定技术护城河，但行业周期性强，盈利不稳定',
+     styleRisk:'行业产能过剩，盈利大幅下滑'},
+   ark:{styleScore:78,matchDescription:'较好契合ARK颠覆式创新框架',
+     styleReason:'BC电池技术领先，清洁能源赛道长期空间大',
+     styleRisk:'行业产能过剩，短期盈利承压'},
+   lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
      styleReason:'PE处于历史低位，BC电池技术领先，业务模式清晰易懂，行业出清后有望受益',
      styleRisk:'行业产能严重过剩，短期盈利承压明显'}}},
   {name:'中芯国际',code:'688981.SH',base:52,vol:0.028,trend:0.4,seed:120,pe:45.2,roe:8.5,score:79,risk:'high',
    reason:'国产半导体龙头，受益于国产替代大趋势，产能利用率回升',strats:['sentiment','momentum'],
-   styles:{ark:{styleScore:85,matchDescription:'较好契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:55,matchDescription:'不太符合巴菲特-芒格式质量价值筛选',
+     styleReason:'ROE偏低，资本开支巨大，不符合巴菲特对高质量企业的要求',
+     styleRisk:'盈利能力偏弱，资本密集型'},
+   ark:{styleScore:85,matchDescription:'较好契合ARK颠覆式创新成长框架',
      styleReason:'半导体国产替代核心标的，先进制程持续突破，研发投入强度高，市场空间巨大',
-     styleRisk:'地缘政治风险，技术封锁不确定性，估值偏高'}}},
+     styleRisk:'地缘政治风险，技术封锁不确定性，估值偏高'},
+   lynch:{styleScore:62,matchDescription:'部分符合林奇成长合理估值框架',
+     styleReason:'成长空间大但PEG偏高，业务技术门槛高',
+     styleRisk:'PEG偏高，业务不够简单易懂'}}},
   {name:'迈瑞医疗',code:'300760.SZ',base:285,vol:0.018,trend:0.25,seed:135,pe:28.8,roe:29.5,score:83,risk:'mid',
    reason:'医疗器械龙头，海外收入占比持续提升，研发管线丰富',strats:['fundamental','llm'],
-   styles:{lynch:{styleScore:86,matchDescription:'高度符合林奇成长合理估值框架',
-     styleReason:'PEG接近1，盈利增速稳健，医疗器械业务易懂，财务健康，海外成长空间广阔',
-     styleRisk:'集采政策风险，海外拓展不确定性'},
-   buffett:{styleScore:80,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
+   styles:{buffett:{styleScore:80,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
      styleReason:'ROE接近30%，医疗器械赛道护城河深，品牌+渠道+研发三重壁垒',
-     styleRisk:'估值不算便宜，需关注政策扰动'}}}
+     styleRisk:'估值不算便宜，需关注政策扰动'},
+   ark:{styleScore:75,matchDescription:'较好契合ARK颠覆式创新框架',
+     styleReason:'医疗器械创新+智能化趋势，海外市场拓展加速',
+     styleRisk:'传统医疗器械为主，颠覆性创新属性一般'},
+   lynch:{styleScore:86,matchDescription:'高度符合林奇成长合理估值框架',
+     styleReason:'PEG接近1，盈利增速稳健，医疗器械业务易懂，财务健康，海外成长空间广阔',
+     styleRisk:'集采政策风险，海外拓展不确定性'}}}
 ];
 
 const usStockRaw=[
@@ -457,45 +603,90 @@ const usStockRaw=[
    reason:'AI identifies strong ecosystem moat, Services revenue acceleration, and positive momentum signals',strats:['fundamental','momentum'],
    styles:{buffett:{styleScore:93,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
      styleReason:'极致的品牌护城河，ROE超140%，自由现金流充沛，回购+分红股东回报优秀，生态系统粘性极强',
-     styleRisk:'估值处于历史高位，创新节奏放缓风险'}}},
+     styleRisk:'估值处于历史高位，创新节奏放缓风险'},
+   ark:{styleScore:75,matchDescription:'部分符合ARK颠覆式创新框架',
+     styleReason:'AI芯片+自动驾驶布局有创新属性，但成熟业务占比大',
+     styleRisk:'非典型颠覆式创新标的'},
+   lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
+     styleReason:'业务极其简单易懂，但市值过大、PEG偏高',
+     styleRisk:'大市值，PEG不够理想'}}},
   {name:'NVIDIA',code:'NVDA',base:135,vol:0.035,trend:0.8,seed:222,pe:65.3,roe:89.5,score:94,risk:'mid',
    reason:'AI芯片绝对龙头，数据中心需求爆发，FinRL模型给出强烈买入信号',strats:['finrl','momentum'],
-   styles:{ark:{styleScore:96,matchDescription:'极度契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:72,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
+     styleReason:'GPU+CUDA生态护城河极深，但估值极高且盈利周期性强',
+     styleRisk:'估值极高，盈利周期性强'},
+   ark:{styleScore:96,matchDescription:'极度契合ARK颠覆式创新成长框架',
      styleReason:'AI基础设施绝对龙头，GPU+CUDA生态垄断，数据中心/自动驾驶/机器人三大平台，市场空间万亿级',
-     styleRisk:'估值极高，周期性风险，客户集中度'}}},
+     styleRisk:'估值极高，周期性风险，客户集中度'},
+   lynch:{styleScore:60,matchDescription:'不太符合林奇成长合理估值框架',
+     styleReason:'盈利增速惊人，但PEG仍偏高，估值远超合理范围',
+     styleRisk:'PEG极高，估值远超合理范围'}}},
   {name:'Microsoft',code:'MSFT',base:445,vol:0.014,trend:0.35,seed:333,pe:36.8,roe:38.2,score:89,risk:'low',
    reason:'Cloud + AI双轮驱动，Copilot商业化加速，LLM Agent评估前景乐观',strats:['llm','fundamental'],
    styles:{buffett:{styleScore:90,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
      styleReason:'Cloud+Office双护城河，ROE持续高位，自由现金流强劲，企业客户粘性极高，AI转型领先',
-     styleRisk:'估值偏高，反垄断监管风险'}}},
+     styleRisk:'估值偏高，反垄断监管风险'},
+   ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新框架',
+     styleReason:'Cloud基础设施+AI大模型两大平台，Copilot商业化加速',
+     styleRisk:'成熟业务占比大，增速不如纯创新标的'},
+   lynch:{styleScore:72,matchDescription:'部分符合林奇成长合理估值框架',
+     styleReason:'业务模式清晰，盈利增长稳健，但市值过大',
+     styleRisk:'大市值，PEG偏高'}}},
   {name:'Alphabet',code:'GOOGL',base:178,vol:0.018,trend:0.3,seed:444,pe:24.2,roe:28.6,score:86,risk:'low',
    reason:'搜索广告基本盘稳固，Gemini模型持续进化，估值相对合理',strats:['fundamental','llm'],
-   styles:{lynch:{styleScore:84,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG合理，搜索广告业务易懂且盈利稳健，Cloud增速可观，估值在科技巨头中最具性价比',
-     styleRisk:'AI对搜索模式的颠覆风险，反垄断诉讼'},
-   buffett:{styleScore:83,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
+   styles:{buffett:{styleScore:83,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
      styleReason:'搜索广告护城河极深，ROE稳健，现金储备充裕，估值合理',
-     styleRisk:'AI颠覆搜索的长期风险'}}},
+     styleRisk:'AI颠覆搜索的长期风险'},
+   ark:{styleScore:82,matchDescription:'较好契合ARK颠覆式创新框架',
+     styleReason:'Gemini大模型持续进化，Cloud基础设施优势明显',
+     styleRisk:'搜索广告基本盘受AI颠覆风险'},
+   lynch:{styleScore:84,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG合理，搜索广告业务易懂且盈利稳健，Cloud增速可观，估值在科技巨头中最具性价比',
+     styleRisk:'AI对搜索模式的颠覆风险，反垄断诉讼'}}},
   {name:'Tesla',code:'TSLA',base:255,vol:0.04,trend:0.2,seed:555,pe:72.1,roe:22.4,score:73,risk:'high',
    reason:'社交媒体情绪波动大，FSD进展是关键催化剂，短期波动风险较高',strats:['sentiment','finrl'],
-   styles:{ark:{styleScore:92,matchDescription:'高度契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:45,matchDescription:'不符合巴菲特-芒格式质量价值筛选',
+     styleReason:'估值极高，盈利波动大，完全不符合巴菲特的投资标准',
+     styleRisk:'估值极高，盈利不稳定'},
+   ark:{styleScore:92,matchDescription:'高度契合ARK颠覆式创新成长框架',
      styleReason:'自动驾驶+机器人+能源三大颠覆性平台，FSD商业化潜力巨大，Optimus人形机器人开辟新赛道',
-     styleRisk:'估值极高，执行风险大，竞争加剧'}}},
+     styleRisk:'估值极高，执行风险大，竞争加剧'},
+   lynch:{styleScore:55,matchDescription:'不太符合林奇成长合理估值框架',
+     styleReason:'业务容易理解，成长空间大，但PEG远超合理范围',
+     styleRisk:'PEG极高，估值远超合理范围'}}},
   {name:'Amazon',code:'AMZN',base:198,vol:0.02,trend:0.45,seed:666,pe:42.5,roe:19.8,score:84,risk:'mid',
    reason:'AWS增速回暖，零售利润率改善，强化学习模型看好中期走势',strats:['finrl','momentum'],
-   styles:{lynch:{styleScore:80,matchDescription:'较好符合林奇成长合理估值框架',
+   styles:{buffett:{styleScore:75,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
+     styleReason:'电商+云计算双护城河，但资本密集型业务导致现金流波动',
+     styleRisk:'资本开支压力大，利润率波动'},
+   ark:{styleScore:80,matchDescription:'较好契合ARK颠覆式创新框架',
+     styleReason:'AWS云计算+AI平台布局，物流自动化创新',
+     styleRisk:'零售业务竞争激烈'},
+   lynch:{styleScore:80,matchDescription:'较好符合林奇成长合理估值框架',
      styleReason:'电商+云计算业务模式清晰，盈利增速回升，AWS成长空间仍然广阔',
      styleRisk:'估值偏高，零售竞争激烈，资本开支压力'}}},
   {name:'Berkshire',code:'BRK.B',base:468,vol:0.01,trend:0.2,seed:777,pe:9.8,roe:15.5,score:80,risk:'low',
    reason:'巴菲特旗舰，多元化投资组合，保险浮存金模式稳健',strats:['fundamental'],
    styles:{buffett:{styleScore:98,matchDescription:'完美符合巴菲特-芒格式质量价值筛选',
      styleReason:'巴菲特亲自管理的旗舰公司，保险浮存金+优质资产组合，低估值高安全边际，现金储备创历史新高',
-     styleRisk:'管理层接班风险，体量过大增长放缓'}}},
+     styleRisk:'管理层接班风险，体量过大增长放缓'},
+   ark:{styleScore:40,matchDescription:'不符合ARK颠覆式创新框架',
+     styleReason:'传统价值投资公司，不属于颠覆式创新赛道',
+     styleRisk:'非创新标的，主题完全不契合'},
+   lynch:{styleScore:72,matchDescription:'较好符合林奇成长合理估值框架',
+     styleReason:'PEG合理，业务模式清晰，估值极低',
+     styleRisk:'体量过大，增长空间有限'}}},
   {name:'Palantir',code:'PLTR',base:24,vol:0.045,trend:0.7,seed:888,pe:185,roe:12.3,score:76,risk:'high',
    reason:'AI平台概念龙头，政府+商业双轮驱动，但估值极高',strats:['momentum','sentiment'],
-   styles:{ark:{styleScore:87,matchDescription:'较好契合ARK颠覆式创新成长框架',
+   styles:{buffett:{styleScore:35,matchDescription:'不符合巴菲特-芒格式质量价值筛选',
+     styleReason:'估值极高，盈利能力待验证，不符合巴菲特的投资标准',
+     styleRisk:'估值极高，盈利不稳定'},
+   ark:{styleScore:87,matchDescription:'较好契合ARK颠覆式创新成长框架',
      styleReason:'AI数据分析平台龙头，AIP平台商业化加速，政府+企业双轮驱动，市场空间巨大',
-     styleRisk:'估值极度偏高，盈利能力待验证'}}}
+     styleRisk:'估值极度偏高，盈利能力待验证'},
+   lynch:{styleScore:42,matchDescription:'不符合林奇成长合理估值框架',
+     styleReason:'业务有一定可理解性，但PEG极高，估值远超合理范围',
+     styleRisk:'PEG极高，盈利能力待验证'}}}
 ];
 
 function buildStock(raw,market){
@@ -534,11 +725,18 @@ function getActiveStyleObj() {
 
 function getFilteredStocks() {
   let stocks = state.market === 'A' ? [...aStocks] : [...usStocks];
+  // Filter by style (independent dimension)
   if (state.investorStyle) {
     stocks = stocks.filter(s => s.investorStyles[state.investorStyle] !== undefined);
   }
-  if (state.strategy) {
-    stocks = stocks.filter(s => s.strategies.includes(state.strategy));
+  // Filter by strategy (independent dimension - only if style filter didn't result in 0 stocks)
+  if (state.strategy && stocks.length > 0) {
+    const strategyFiltered = stocks.filter(s => s.strategies.includes(state.strategy));
+    // Only apply strategy filter if it doesn't result in 0 stocks
+    if (strategyFiltered.length > 0) {
+      stocks = strategyFiltered;
+    }
+    // Otherwise, keep the style-filtered stocks (ignore strategy filter)
   }
   if (state.riskLevel === 'conservative') {
     stocks = stocks.filter(s => s.riskLevel === 'low');
@@ -1039,9 +1237,283 @@ function renderAll() {
   renderDetailChart();
 }
 
+// ===== STOCK ANALYZER DATA =====
+const analyzerDB = [
+  {code:'600519.SH',name:'贵州茅台',market:'A',overallScore:91,bestStyle:'巴菲特-芒格',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:95,dims:[{n:'ROE质量',s:98},{n:'负债水平',s:95},{n:'盈利稳定性',s:92},{n:'自由现金流',s:96},{n:'护城河',s:99},{n:'估值合理性',s:78},{n:'管理层质量',s:90}],comment:'极致的消费品牌护城河，ROE长期超30%，自由现金流充沛，是巴菲特理想中的"永续经营"标的。'},
+     {id:'ark',name:'木头姐ARK',score:65,dims:[{n:'主题契合度',s:45},{n:'收入增长',s:70},{n:'研发强度',s:40},{n:'平台潜力',s:55},{n:'市场空间',s:60},{n:'估值风险',s:-15}],comment:'传统消费品牌，不属于颠覆式创新赛道，但品牌数字化和全球化扩张有一定创新属性。'},
+     {id:'lynch',name:'彼得林奇',score:72,dims:[{n:'PEG合理性',s:60},{n:'盈利增长',s:75},{n:'业务可理解性',s:98},{n:'财务健康',s:95},{n:'成长空间',s:55},{n:'估值水平',s:62}],comment:'业务极其简单易懂，盈利稳定增长，但市值过大、PEG偏高，不是林奇最爱的中小市值成长股。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'ROE、毛利率、现金流等核心因子均处于行业顶部'},{name:'动量趋势',signal:'neutral',reason:'近期价格在高位震荡，短期动量中性'},{name:'情绪分析',signal:'bullish',reason:'机构持仓稳定增长，消费复苏预期升温'}],
+   strengths:['品牌护城河极深，消费者心智垄断','ROE长期超30%，盈利能力行业顶尖','自由现金流充沛，分红能力强'],
+   risks:['估值略高于历史中枢','消费降级趋势可能影响高端白酒需求','反腐政策对商务消费场景的影响']},
+  {code:'300750.SZ',name:'宁德时代',market:'A',overallScore:86,bestStyle:'木头姐ARK',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:70,dims:[{n:'ROE质量',s:78},{n:'负债水平',s:60},{n:'盈利稳定性',s:65},{n:'自由现金流',s:55},{n:'护城河',s:82},{n:'估值合理性',s:68},{n:'管理层质量',s:85}],comment:'技术护城河深厚但行业周期性强，资本开支大导致自由现金流偏弱。'},
+     {id:'ark',name:'木头姐ARK',score:91,dims:[{n:'主题契合度',s:95},{n:'收入增长',s:88},{n:'研发强度',s:92},{n:'平台潜力',s:90},{n:'市场空间',s:95},{n:'估值风险',s:-10}],comment:'全球动力电池绝对龙头，储能+固态电池双赛道布局，完美契合ARK颠覆式创新理念。'},
+     {id:'lynch',name:'彼得林奇',score:78,dims:[{n:'PEG合理性',s:80},{n:'盈利增长',s:82},{n:'业务可理解性',s:75},{n:'财务健康',s:72},{n:'成长空间',s:85},{n:'估值水平',s:70}],comment:'PEG接近1，盈利增速可观，全球市占率持续提升。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'全球市占率第一，技术壁垒高'},{name:'动量趋势',signal:'bullish',reason:'股价突破关键阻力位，上升趋势确立'},{name:'情绪分析',signal:'neutral',reason:'行业竞争加剧引发部分担忧'}],
+   strengths:['全球动力电池市占率第一','研发投入行业领先，技术壁垒深厚','储能+固态电池双赛道布局'],
+   risks:['行业竞争加剧，价格战压力','原材料价格波动影响利润率','地缘政治风险影响海外扩张']},
+  {code:'002594.SZ',name:'比亚迪',market:'A',overallScore:84,bestStyle:'木头姐ARK',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:68,dims:[{n:'ROE质量',s:72},{n:'负债水平',s:55},{n:'盈利稳定性',s:60},{n:'自由现金流',s:50},{n:'护城河',s:78},{n:'估值合理性',s:65},{n:'管理层质量',s:88}],comment:'垂直整合能力强，但资本密集型业务导致现金流偏弱。'},
+     {id:'ark',name:'木头姐ARK',score:88,dims:[{n:'主题契合度',s:92},{n:'收入增长',s:90},{n:'研发强度',s:85},{n:'平台潜力',s:88},{n:'市场空间',s:92},{n:'估值风险',s:-12}],comment:'新能源汽车全产业链垂直整合，完美契合颠覆式创新。'},
+     {id:'lynch',name:'彼得林奇',score:75,dims:[{n:'PEG合理性',s:72},{n:'盈利增长',s:85},{n:'业务可理解性',s:80},{n:'财务健康',s:65},{n:'成长空间',s:82},{n:'估值水平',s:68}],comment:'业务容易理解，增长强劲，但估值偏高。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'销量持续创新高，海外市场高速增长'},{name:'动量趋势',signal:'bullish',reason:'股价处于上升通道，多条均线多头排列'},{name:'情绪分析',signal:'bullish',reason:'社交媒体热度高，海外销量超预期'}],
+   strengths:['新能源汽车全产业链垂直整合','海外市场高速增长','自动驾驶+智能化布局加速'],
+   risks:['行业竞争格局激烈，利润率承压','估值偏高，需要持续高增长支撑','地缘政治风险影响海外业务']},
+  {code:'601318.SH',name:'中国平安',market:'A',overallScore:77,bestStyle:'巴菲特-芒格',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:82,dims:[{n:'ROE质量',s:75},{n:'负债水平',s:70},{n:'盈利稳定性',s:78},{n:'自由现金流',s:72},{n:'护城河',s:85},{n:'估值合理性',s:92},{n:'管理层质量',s:82}],comment:'保险浮存金模式天然具备投资杠杆，当前估值极具吸引力。'},
+     {id:'ark',name:'木头姐ARK',score:72,dims:[{n:'主题契合度',s:65},{n:'收入增长',s:60},{n:'研发强度',s:70},{n:'平台潜力',s:78},{n:'市场空间',s:72},{n:'估值风险',s:-5}],comment:'金融科技创新有亮点，但传统保险业务占比仍大。'},
+     {id:'lynch',name:'彼得林奇',score:74,dims:[{n:'PEG合理性',s:85},{n:'盈利增长',s:65},{n:'业务可理解性',s:72},{n:'财务健康',s:75},{n:'成长空间',s:68},{n:'估值水平',s:88}],comment:'PEG合理，估值处于历史低位，但业务复杂度较高。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'估值处于历史低位，股息率具有吸引力'},{name:'动量趋势',signal:'neutral',reason:'股价在底部区域震荡，等待突破信号'},{name:'情绪分析',signal:'neutral',reason:'市场对保险板块情绪偏中性'}],
+   strengths:['保险浮存金模式天然具备投资杠杆','综合金融平台护城河深厚','当前估值极具安全边际'],
+   risks:['地产敞口风险仍需消化','投资端收益率承压','保险行业转型期不确定性']},
+  {code:'600036.SH',name:'招商银行',market:'A',overallScore:80,bestStyle:'巴菲特-芒格',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:88,dims:[{n:'ROE质量',s:85},{n:'负债水平',s:75},{n:'盈利稳定性',s:88},{n:'自由现金流',s:80},{n:'护城河',s:90},{n:'估值合理性',s:95},{n:'管理层质量',s:92}],comment:'零售银行护城河深厚，ROE行业领先，管理层治理优秀。'},
+     {id:'ark',name:'木头姐ARK',score:68,dims:[{n:'主题契合度',s:55},{n:'收入增长',s:58},{n:'研发强度',s:65},{n:'平台潜力',s:72},{n:'市场空间',s:60},{n:'估值风险',s:-5}],comment:'数字银行+金融科技创新有亮点，但传统银行业务占比大。'},
+     {id:'lynch',name:'彼得林奇',score:76,dims:[{n:'PEG合理性',s:88},{n:'盈利增长',s:70},{n:'业务可理解性',s:82},{n:'财务健康',s:85},{n:'成长空间',s:62},{n:'估值水平',s:92}],comment:'PEG合理，估值极低，业务模式清晰。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'ROE行业领先，资产质量优异'},{name:'动量趋势',signal:'neutral',reason:'股价在区间内震荡'},{name:'情绪分析',signal:'bullish',reason:'高股息策略受追捧'}],
+   strengths:['零售银行护城河深厚，客户粘性强','ROE行业领先，资产质量优异','估值极低，股息率具有吸引力'],
+   risks:['银行业净息差收窄趋势','宏观经济不确定性影响资产质量','金融科技竞争加剧']},
+  {code:'688981.SH',name:'中芯国际',market:'A',overallScore:78,bestStyle:'木头姐ARK',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:55,dims:[{n:'ROE质量',s:45},{n:'负债水平',s:50},{n:'盈利稳定性',s:40},{n:'自由现金流',s:35},{n:'护城河',s:65},{n:'估值合理性',s:48},{n:'管理层质量',s:75}],comment:'ROE偏低，资本开支巨大，不符合巴菲特对高质量企业的要求。'},
+     {id:'ark',name:'木头姐ARK',score:85,dims:[{n:'主题契合度',s:95},{n:'收入增长',s:78},{n:'研发强度',s:90},{n:'平台潜力',s:85},{n:'市场空间',s:92},{n:'估值风险',s:-15}],comment:'半导体国产替代核心标的，完美契合颠覆式创新主题。'},
+     {id:'lynch',name:'彼得林奇',score:62,dims:[{n:'PEG合理性',s:50},{n:'盈利增长',s:65},{n:'业务可理解性',s:55},{n:'财务健康',s:58},{n:'成长空间',s:80},{n:'估值水平',s:45}],comment:'成长空间大但PEG偏高，业务技术门槛高。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'neutral',reason:'产能利用率回升，但盈利能力仍偏弱'},{name:'动量趋势',signal:'bullish',reason:'股价突破前期高点，半导体板块走强'},{name:'情绪分析',signal:'bullish',reason:'国产替代主题持续发酵'}],
+   strengths:['半导体国产替代核心标的','先进制程持续突破','政策支持力度大'],
+   risks:['地缘政治风险，技术封锁不确定性','资本开支巨大，盈利能力偏弱','估值偏高']},
+  {code:'AAPL',name:'Apple',market:'US',overallScore:90,bestStyle:'巴菲特-芒格',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:93,dims:[{n:'ROE质量',s:99},{n:'负债水平',s:75},{n:'盈利稳定性',s:95},{n:'自由现金流',s:98},{n:'护城河',s:97},{n:'估值合理性',s:72},{n:'管理层质量',s:90}],comment:'极致的品牌护城河+生态系统粘性，ROE超140%，是巴菲特重仓的核心标的。'},
+     {id:'ark',name:'木头姐ARK',score:75,dims:[{n:'主题契合度',s:72},{n:'收入增长',s:65},{n:'研发强度',s:78},{n:'平台潜力',s:85},{n:'市场空间',s:70},{n:'估值风险',s:-10}],comment:'AI芯片+自动驾驶布局有创新属性，但成熟业务占比大。'},
+     {id:'lynch',name:'彼得林奇',score:70,dims:[{n:'PEG合理性',s:62},{n:'盈利增长',s:68},{n:'业务可理解性',s:95},{n:'财务健康',s:92},{n:'成长空间',s:55},{n:'估值水平',s:58}],comment:'业务极其简单易懂，但市值过大、PEG偏高。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'Services收入加速增长，生态系统粘性持续增强'},{name:'动量趋势',signal:'bullish',reason:'股价创新高后回调企稳'},{name:'情绪分析',signal:'neutral',reason:'市场对iPhone增长放缓有所担忧'}],
+   strengths:['品牌护城河+生态系统粘性无与伦比','ROE超140%，自由现金流极其充沛','Services业务高毛利持续增长'],
+   risks:['估值处于历史高位','iPhone增长放缓','中国市场份额面临竞争压力']},
+  {code:'NVDA',name:'NVIDIA',market:'US',overallScore:92,bestStyle:'木头姐ARK',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:72,dims:[{n:'ROE质量',s:92},{n:'负债水平',s:80},{n:'盈利稳定性',s:60},{n:'自由现金流',s:85},{n:'护城河',s:90},{n:'估值合理性',s:40},{n:'管理层质量',s:92}],comment:'GPU+CUDA生态护城河极深，但估值极高且盈利周期性强。'},
+     {id:'ark',name:'木头姐ARK',score:96,dims:[{n:'主题契合度',s:99},{n:'收入增长',s:98},{n:'研发强度',s:95},{n:'平台潜力',s:97},{n:'市场空间',s:98},{n:'估值风险',s:-15}],comment:'AI基础设施绝对龙头，GPU+CUDA生态垄断，三大万亿级平台。'},
+     {id:'lynch',name:'彼得林奇',score:60,dims:[{n:'PEG合理性',s:55},{n:'盈利增长',s:95},{n:'业务可理解性',s:65},{n:'财务健康',s:82},{n:'成长空间',s:90},{n:'估值水平',s:35}],comment:'盈利增速惊人，但PEG仍偏高，估值远超合理范围。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'数据中心收入爆发式增长'},{name:'动量趋势',signal:'bullish',reason:'强势上升趋势，成交量配合良好'},{name:'情绪分析',signal:'bullish',reason:'AI主题持续火热，机构持续加仓'}],
+   strengths:['AI基础设施绝对龙头','数据中心收入爆发式增长','自动驾驶+机器人多平台布局'],
+   risks:['估值极高，对增长预期极为敏感','客户集中度风险','竞争对手追赶']},
+  {code:'MSFT',name:'Microsoft',market:'US',overallScore:89,bestStyle:'巴菲特-芒格',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:90,dims:[{n:'ROE质量',s:88},{n:'负债水平',s:78},{n:'盈利稳定性',s:92},{n:'自由现金流',s:90},{n:'护城河',s:95},{n:'估值合理性',s:68},{n:'管理层质量',s:95}],comment:'Cloud+Office双护城河，AI转型领先，是高质量复合增长标的。'},
+     {id:'ark',name:'木头姐ARK',score:88,dims:[{n:'主题契合度',s:92},{n:'收入增长',s:82},{n:'研发强度',s:90},{n:'平台潜力',s:95},{n:'市场空间',s:88},{n:'估值风险',s:-8}],comment:'Cloud基础设施+AI大模型两大平台，Copilot商业化加速。'},
+     {id:'lynch',name:'彼得林奇',score:72,dims:[{n:'PEG合理性',s:65},{n:'盈利增长',s:78},{n:'业务可理解性',s:80},{n:'财务健康',s:90},{n:'成长空间',s:72},{n:'估值水平',s:60}],comment:'业务模式清晰，盈利增长稳健，但市值过大。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'Azure增速强劲，Copilot商业化加速'},{name:'动量趋势',signal:'neutral',reason:'股价在高位整理'},{name:'情绪分析',signal:'bullish',reason:'AI概念持续受追捧'}],
+   strengths:['Cloud+Office双护城河','AI转型领先，Copilot商业化加速','自由现金流强劲'],
+   risks:['估值偏高','反垄断监管风险','AI投资回报周期不确定']},
+  {code:'GOOGL',name:'Alphabet',market:'US',overallScore:85,bestStyle:'彼得林奇',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:83,dims:[{n:'ROE质量',s:82},{n:'负债水平',s:88},{n:'盈利稳定性',s:85},{n:'自由现金流',s:88},{n:'护城河',s:92},{n:'估值合理性',s:82},{n:'管理层质量',s:78}],comment:'搜索广告护城河极深，现金储备充裕，估值最合理。'},
+     {id:'ark',name:'木头姐ARK',score:82,dims:[{n:'主题契合度',s:85},{n:'收入增长',s:75},{n:'研发强度',s:88},{n:'平台潜力',s:90},{n:'市场空间',s:82},{n:'估值风险',s:-5}],comment:'Gemini大模型持续进化，Cloud基础设施优势明显。'},
+     {id:'lynch',name:'彼得林奇',score:84,dims:[{n:'PEG合理性',s:88},{n:'盈利增长',s:80},{n:'业务可理解性',s:85},{n:'财务健康',s:92},{n:'成长空间',s:78},{n:'估值水平',s:85}],comment:'PEG合理，搜索广告业务易懂，估值最具性价比。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'搜索广告基本盘稳固，估值合理'},{name:'动量趋势',signal:'neutral',reason:'股价在区间内震荡'},{name:'情绪分析',signal:'neutral',reason:'AI对搜索模式的颠覆担忧与Gemini进展对冲'}],
+   strengths:['搜索广告护城河极深','估值在科技巨头中最具性价比','Gemini大模型+Cloud双轮驱动'],
+   risks:['AI对搜索模式的长期颠覆风险','反垄断诉讼不确定性','YouTube增长放缓']},
+  {code:'TSLA',name:'Tesla',market:'US',overallScore:73,bestStyle:'木头姐ARK',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:45,dims:[{n:'ROE质量',s:68},{n:'负债水平',s:65},{n:'盈利稳定性',s:35},{n:'自由现金流',s:50},{n:'护城河',s:55},{n:'估值合理性',s:25},{n:'管理层质量',s:60}],comment:'估值极高，盈利波动大，完全不符合巴菲特的投资标准。'},
+     {id:'ark',name:'木头姐ARK',score:92,dims:[{n:'主题契合度',s:98},{n:'收入增长',s:80},{n:'研发强度',s:88},{n:'平台潜力',s:95},{n:'市场空间',s:98},{n:'估值风险',s:-18}],comment:'自动驾驶+机器人+能源三大颠覆性平台，ARK最核心持仓之一。'},
+     {id:'lynch',name:'彼得林奇',score:55,dims:[{n:'PEG合理性',s:40},{n:'盈利增长',s:60},{n:'业务可理解性',s:75},{n:'财务健康',s:65},{n:'成长空间',s:85},{n:'估值水平',s:30}],comment:'业务容易理解，成长空间大，但PEG远超合理范围。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'neutral',reason:'销量增长放缓，利润率承压'},{name:'动量趋势',signal:'neutral',reason:'股价波动剧烈，方向不明确'},{name:'情绪分析',signal:'bearish',reason:'社交媒体情绪分化严重'}],
+   strengths:['自动驾驶+机器人+能源三大平台','FSD商业化潜力巨大','品牌影响力和创新能力强'],
+   risks:['估值极高','竞争加剧，市场份额面临压力','CEO争议影响品牌和销量']},
+  {code:'AMZN',name:'Amazon',market:'US',overallScore:83,bestStyle:'彼得林奇',
+   styles:[
+     {id:'buffett',name:'巴菲特-芒格',score:75,dims:[{n:'ROE质量',s:72},{n:'负债水平',s:65},{n:'盈利稳定性',s:70},{n:'自由现金流',s:68},{n:'护城河',s:92},{n:'估值合理性',s:62},{n:'管理层质量',s:85}],comment:'电商+云计算双护城河，但资本密集型业务导致现金流波动。'},
+     {id:'ark',name:'木头姐ARK',score:80,dims:[{n:'主题契合度',s:82},{n:'收入增长',s:78},{n:'研发强度',s:85},{n:'平台潜力',s:90},{n:'市场空间',s:85},{n:'估值风险',s:-8}],comment:'AWS云计算+AI平台布局，物流自动化创新。'},
+     {id:'lynch',name:'彼得林奇',score:80,dims:[{n:'PEG合理性',s:78},{n:'盈利增长',s:82},{n:'业务可理解性',s:88},{n:'财务健康',s:75},{n:'成长空间',s:80},{n:'估值水平',s:68}],comment:'电商+云计算业务模式清晰，AWS成长空间广阔。'}
+   ],
+   signals:[{name:'基本面多因子',signal:'bullish',reason:'AWS增速回暖，零售利润率改善'},{name:'动量趋势',signal:'bullish',reason:'股价突破关键阻力位'},{name:'情绪分析',signal:'neutral',reason:'市场对零售竞争有所担忧'}],
+   strengths:['电商+云计算双护城河','AWS增速回暖，AI服务需求爆发','物流网络效率持续提升'],
+   risks:['零售竞争激烈，利润率承压','资本开支压力大','反垄断监管风险']}
+];
+
+function searchAnalyzerDB(query) {
+  const q = query.trim().toUpperCase();
+  return analyzerDB.find(s => s.code.toUpperCase().includes(q) || s.name.toUpperCase().includes(q) || s.name.includes(query.trim())) || null;
+}
+
+function createMiniScoreRingSVG(score, size, color) {
+  const r = (size - 8) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - score / 100);
+  return `<svg width="${size}" height="${size}" class="sa-ring">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(201,169,110,0.1)" stroke-width="4"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="4"
+      stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"
+      transform="rotate(-90 ${size/2} ${size/2})" style="transition:stroke-dashoffset 1s ease-out"/>
+    <text x="${size/2}" y="${size/2}" text-anchor="middle" dominant-baseline="middle"
+      style="font-size:12px;font-weight:600;fill:${color};font-family:var(--font-mono)">${score}</text>
+  </svg>`;
+}
+
+function createRadarSVG(dims, color) {
+  const size = 220, cx = size/2, cy = size/2, maxR = 82, levels = 4;
+  const count = dims.length, step = (2*Math.PI)/count;
+  const getP = (i, v) => {
+    const a = step*i - Math.PI/2, r = (Math.max(0,v)/100)*maxR;
+    return {x: cx + r*Math.cos(a), y: cy + r*Math.sin(a)};
+  };
+  let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block;margin:0 auto">`;
+  // Grid
+  for (let l=1;l<=levels;l++) {
+    const r = maxR*(l/levels);
+    const pts = Array.from({length:count},(_,i)=>{const a=step*i-Math.PI/2;return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(' ');
+    svg += `<polygon points="${pts}" fill="none" stroke="rgba(201,169,110,0.15)" stroke-width="0.5"/>`;
+  }
+  // Axes
+  dims.forEach((_,i)=>{const p=getP(i,100);svg+=`<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(201,169,110,0.2)" stroke-width="0.5"/>`;});
+  // Data
+  const dataPts = dims.map((d,i)=>getP(i,d.s)).map(p=>`${p.x},${p.y}`).join(' ');
+  svg += `<polygon points="${dataPts}" fill="${color}20" stroke="${color}" stroke-width="2"/>`;
+  dims.forEach((d,i)=>{const p=getP(i,Math.max(0,d.s));svg+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}"/>`;});
+  // Labels
+  dims.forEach((d,i)=>{const p=getP(i,118);svg+=`<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" style="font-size:9px;fill:var(--text-secondary);font-family:var(--font-body)">${d.n}</text>`;});
+  svg += '</svg>';
+  return svg;
+}
+
+function renderAnalyzerReport(result) {
+  const container = document.getElementById('analyzerReport');
+  if (!result) {
+    container.innerHTML = `<div class="report-card"><div class="report-not-found">
+      <div class="nf-icon">🔍</div><p class="nf-text">该股票暂未收录，敬请期待</p>
+      <p class="nf-sub">目前支持 ${analyzerDB.length} 只热门股票的分析</p></div></div>`;
+    return;
+  }
+  const colors = {buffett:'#2C5282',ark:'#6B46C1',lynch:'#276749'};
+  const signalConfig = {
+    bullish:{cls:'signal-bullish',label:'看多',icon:'▲'},
+    neutral:{cls:'signal-neutral',label:'中性',icon:'●'},
+    bearish:{cls:'signal-bearish',label:'看空',icon:'▼'}
+  };
+
+  let html = `<div class="report-card"><div class="report-inner">`;
+  // Header
+  html += `<div class="report-header"><div class="report-header-left">
+    <div class="report-score-box">${result.overallScore}</div>
+    <div><div class="report-stock-name">${result.name}<span class="report-stock-code">${result.code}</span></div>
+    <div class="report-stock-meta">综合评分 ${result.overallScore}/100 · 最适合风格：${result.bestStyle}</div></div></div>
+    <button class="report-close" onclick="document.getElementById('analyzerReport').innerHTML=''">✕</button></div>`;
+
+  // Style Analyses
+  html += `<div class="report-section-title">📊 投资风格评分</div><div class="style-analysis-grid">`;
+  result.styles.forEach(sa => {
+    const c = colors[sa.id] || '#C9A96E';
+    html += `<div class="style-analysis-card" style="border:1px solid ${c}20">
+      <div class="sa-header">${createMiniScoreRingSVG(sa.score, 56, c)}
+        <div><div class="sa-title" style="color:${c}">${sa.name}视角</div>
+        <div class="sa-comment">${sa.comment}</div></div></div>
+      ${createRadarSVG(sa.dims, c)}
+      <div class="sa-dims">${sa.dims.map(d=>`<div class="sa-dim" style="background:${c}08"><span class="sa-dim-name">${d.n}</span><span class="sa-dim-score" style="color:${c}">${d.s}</span></div>`).join('')}</div></div>`;
+  });
+  html += '</div>';
+
+  // Strategy Signals
+  html += `<div class="report-section-title">🎯 策略信号</div><div class="signal-grid">`;
+  result.signals.forEach(sig => {
+    const sc = signalConfig[sig.signal];
+    html += `<div class="signal-card"><div class="signal-card-top">
+      <span class="signal-name">${sig.name}</span>
+      <span class="signal-badge ${sc.cls}"><span style="font-size:10px">${sc.icon}</span>${sc.label}</span></div>
+      <div class="signal-reason">${sig.reason}</div></div>`;
+  });
+  html += '</div>';
+
+  // Conclusion
+  html += `<div class="report-section-title">💡 综合结论</div><div class="conclusion-grid">`;
+  html += `<div class="conclusion-box strengths"><div class="conclusion-label green">主要优势</div>`;
+  result.strengths.forEach(s => { html += `<div class="conclusion-item"><span class="conclusion-icon green">✓</span>${s}</div>`; });
+  html += '</div>';
+  html += `<div class="conclusion-box risks"><div class="conclusion-label red">主要风险</div>`;
+  result.risks.forEach(r => { html += `<div class="conclusion-item"><span class="conclusion-icon red">⚠</span>${r}</div>`; });
+  html += '</div></div>';
+
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+function setupAnalyzer() {
+  const input = document.getElementById('analyzerInput');
+  const btn = document.getElementById('analyzerBtn');
+  const sugBox = document.getElementById('analyzerSuggestions');
+  const hints = document.getElementById('analyzerHints');
+
+  // Render hints
+  let hintsHtml = '<span>可分析：</span>';
+  analyzerDB.slice(0, 8).forEach(s => {
+    hintsHtml += `<button class="analyzer-hint-btn" data-code="${s.code}" data-name="${s.name}">${s.name}</button>`;
+  });
+  hintsHtml += `<span>等${analyzerDB.length}只</span>`;
+  hints.innerHTML = hintsHtml;
+  hints.querySelectorAll('.analyzer-hint-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      input.value = b.dataset.name + ' ' + b.dataset.code;
+      const r = searchAnalyzerDB(b.dataset.code);
+      renderAnalyzerReport(r);
+      sugBox.classList.add('hidden');
+    });
+  });
+
+  function doAnalyze(q) {
+    if (!q || !q.trim()) return;
+    const r = searchAnalyzerDB(q);
+    renderAnalyzerReport(r);
+    sugBox.classList.add('hidden');
+  }
+
+  btn.addEventListener('click', () => doAnalyze(input.value));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') doAnalyze(input.value); });
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { sugBox.classList.add('hidden'); return; }
+    const matches = analyzerDB.filter(s => s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)).slice(0, 6);
+    if (matches.length === 0) { sugBox.classList.add('hidden'); return; }
+    sugBox.innerHTML = matches.map(s => `<button class="analyzer-sug-item" data-code="${s.code}" data-name="${s.name}">
+      <span class="sug-name">${s.name}</span><span class="sug-code">${s.code} · ${s.market==='A'?'A股':'美股'}</span></button>`).join('');
+    sugBox.classList.remove('hidden');
+    sugBox.querySelectorAll('.analyzer-sug-item').forEach(item => {
+      item.addEventListener('click', () => {
+        input.value = item.dataset.name + ' ' + item.dataset.code;
+        const r = searchAnalyzerDB(item.dataset.code);
+        renderAnalyzerReport(r);
+        sugBox.classList.add('hidden');
+      });
+    });
+  });
+
+  input.addEventListener('focus', () => { if (input.value.trim()) input.dispatchEvent(new Event('input')); });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.analyzer-input-wrap')) sugBox.classList.add('hidden');
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   setupToggles();
+  setupAnalyzer();
   renderAll();
 });
 
