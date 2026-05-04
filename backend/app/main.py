@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .data_fetcher import fetch_stock, detect_market
+from .data_fetcher import fetch_stock, detect_market, normalize_a_code, a_code_to_yfinance
 from .scoring import score_buffett, score_ark, score_lynch, generate_strategy_signals, generate_conclusion
 
 # ---------------------------------------------------------------------------
@@ -187,6 +187,149 @@ async def analyze_stock(stock_code: str):
         )
 
 
+@app.get("/api/chart/{stock_code}")
+async def chart_data(stock_code: str):
+    """
+    Return recent 60 trading days OHLC data for charting.
+    A-shares use Eastmoney API; US stocks use yfinance.
+    Accepts A-share codes (e.g., 600519) or US tickers (e.g., AAPL).
+    """
+    import requests as _requests
+
+    stock_code = stock_code.strip()
+    if not stock_code:
+        raise HTTPException(status_code=400, detail="股票代码不能为空")
+    try:
+        market = detect_market(stock_code)
+
+        if market == "A":
+            # --- A-share: use Eastmoney push2his API ---
+            code6 = normalize_a_code(stock_code)
+            # Determine market prefix: 1.=Shanghai, 0.=Shenzhen
+            if code6.startswith(('600', '601', '603', '605', '688')):
+                secid = f"1.{code6}"
+            else:
+                secid = f"0.{code6}"
+
+            logger.info(f"Fetching Eastmoney chart data for secid={secid}")
+            url = (
+                "http://push2his.eastmoney.com/api/qt/stock/kline/get"
+                f"?secid={secid}"
+                "&fields1=f1,f2,f3,f4,f5,f6"
+                "&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
+                "&klt=101&fqt=1&end=20500101&lmt=60"
+            )
+            resp = _requests.get(url, timeout=10)
+            resp.raise_for_status()
+            json_data = resp.json()
+
+            klines = json_data.get("data", {}).get("klines") if json_data.get("data") else None
+            if not klines:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"未找到股票 {stock_code} 的历史数据"
+                )
+
+            records = []
+            for line in klines:
+                # Format: 日期,开盘,收盘,最高,最低,成交量,成交额,...
+                parts = line.split(",")
+                records.append({
+                    "date": parts[0],
+                    "open": round(float(parts[1]), 2),
+                    "close": round(float(parts[2]), 2),
+                    "high": round(float(parts[3]), 2),
+                    "low": round(float(parts[4]), 2),
+                    "volume": int(float(parts[5])),
+                })
+
+            return {
+                "stock_code": stock_code,
+                "ticker": secid,
+                "market": "A股",
+                "data": records,
+            }
+
+        else:
+            # --- US stock: try Eastmoney first (105.=NASDAQ, 106.=NYSE), fallback to yfinance ---
+            ticker_upper = stock_code.upper()
+            records = None
+
+            for prefix in ["105", "106"]:
+                secid = f"{prefix}.{ticker_upper}"
+                logger.info(f"Trying Eastmoney US chart: secid={secid}")
+                url = (
+                    "http://push2his.eastmoney.com/api/qt/stock/kline/get"
+                    f"?secid={secid}"
+                    "&fields1=f1,f2,f3,f4,f5,f6"
+                    "&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
+                    "&klt=101&fqt=1&end=20500101&lmt=60"
+                )
+                try:
+                    resp = _requests.get(url, timeout=10)
+                    resp.raise_for_status()
+                    json_data = resp.json()
+                    klines = json_data.get("data", {}).get("klines") if json_data.get("data") else None
+                    if klines and len(klines) > 0:
+                        records = []
+                        for line in klines:
+                            parts = line.split(",")
+                            records.append({
+                                "date": parts[0],
+                                "open": round(float(parts[1]), 2),
+                                "close": round(float(parts[2]), 2),
+                                "high": round(float(parts[3]), 2),
+                                "low": round(float(parts[4]), 2),
+                                "volume": int(float(parts[5])),
+                            })
+                        return {
+                            "stock_code": stock_code,
+                            "ticker": secid,
+                            "market": "美股",
+                            "data": records,
+                        }
+                except Exception as em_err:
+                    logger.warning(f"Eastmoney US {secid} failed: {em_err}")
+                    continue
+
+            # Fallback: yfinance for US stocks
+            logger.info(f"Falling back to yfinance for {ticker_upper}")
+            import yfinance as yf
+            ticker = yf.Ticker(ticker_upper)
+            hist = ticker.history(period="3mo")
+            if hist.empty:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"未找到股票 {stock_code} 的历史数据"
+                )
+            hist = hist.tail(60)
+            records = []
+            for idx, row in hist.iterrows():
+                records.append({
+                    "date": idx.strftime("%Y-%m-%d"),
+                    "open": round(float(row["Open"]), 2),
+                    "high": round(float(row["High"]), 2),
+                    "low": round(float(row["Low"]), 2),
+                    "close": round(float(row["Close"]), 2),
+                    "volume": int(row["Volume"]),
+                })
+            return {
+                "stock_code": stock_code,
+                "ticker": ticker_upper,
+                "market": "美股",
+                "data": records,
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching chart for {stock_code}: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"获取 {stock_code} 图表数据时出错：{str(e)}"
+        )
+
+
 @app.get("/")
 async def root():
     return {
@@ -196,6 +339,7 @@ async def root():
             "health": "/api/health",
             "search": "/api/search?q=<keyword>",
             "analyze": "/api/analyze/<stock_code>",
+            "chart": "/api/chart/<stock_code>",
         },
         "disclaimer": DISCLAIMER,
     }

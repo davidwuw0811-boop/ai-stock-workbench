@@ -430,22 +430,25 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   </div>
 </section>
 
-<!-- ===== STOCK CARDS ===== -->
-<section class="stock-section">
+<!-- ===== PRICE TREND CHART ===== -->
+<section class="chart-section" id="chartSection" style="display:none;padding:24px 0">
   <div class="container">
-    <div class="section-header anim-fade-up" style="animation-delay:0.25s" id="stockHeader">
+    <div class="section-header anim-fade-up" style="animation-delay:0.25s">
       <div class="section-bar" style="width:4px;height:20px;background:linear-gradient(180deg,#C9A96E,#D4B87A)"></div>
-      <div class="section-title" style="font-size:18px">AI选股结果</div>
-      <div class="section-subtitle">共 <span id="stockCount" style="font-family:var(--font-mono);color:#C9A96E;font-weight:600">0</span> 只推荐</div>
+      <div class="section-title" style="font-size:18px" id="chartTitle">股价趋势图</div>
+      <div class="section-subtitle" id="chartSubtitle">最近60个交易日</div>
     </div>
-    <div id="stockGrid"></div>
-  </div>
-</section>
-
-<!-- ===== DETAIL CHART ===== -->
-<section class="chart-section" id="chartSection">
-  <div class="container">
-    <div id="chartContainer"></div>
+    <div id="chartContainer" style="background:var(--card-bg,rgba(255,255,252,0.55));border-radius:16px;padding:24px;border:1px solid var(--border,rgba(201,169,110,0.1));box-shadow:var(--shadow-sm)">
+      <div style="position:relative;height:400px">
+        <canvas id="priceChartCanvas"></canvas>
+      </div>
+      <div id="chartLegend" style="display:flex;align-items:center;gap:16px;margin-top:12px;font-size:11px;color:var(--text-muted)">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#C9A96E;border-radius:1px"></div>收盘价</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#2E8B6A;border-radius:1px"></div>MA5</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:2px;background:#8B8B82;border-radius:1px;border-style:dashed"></div>MA20</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:16px;height:8px;background:rgba(201,169,110,0.2);border-radius:2px"></div>成交量</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -508,204 +511,16 @@ const strategies=[
   {id:'llm',name:'LLM投研Agent',icon:'\u{1F9E0}',description:'大语言模型驱动的智能投研分析助手'}
 ];
 
-const aStockRaw=[
-  {name:'贵州茅台',code:'600519.SH',base:1680,vol:0.015,trend:0.3,seed:42,pe:25.3,roe:32.1,score:92,risk:'low',
-   reason:'AI模型识别到白酒龙头估值合理，ROE持续领先行业，机构持仓稳定增长',strats:['fundamental','llm'],
-   styles:{buffett:{styleScore:95,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
-     styleReason:'长期ROE超30%，自由现金流充沛，品牌护城河极深，消费者心智垄断地位稳固，定价权强劲',
-     styleRisk:'估值略高于历史中枢，需关注消费降级风险'},
-   ark:{styleScore:65,matchDescription:'部分符合ARK颠覆式创新框架',
-     styleReason:'传统消费品牌，不属于颠覆式创新赛道，但品牌数字化和全球化扩张有一定创新属性',
-     styleRisk:'非颠覆式创新标的，主题契合度偏低'},
-   lynch:{styleScore:72,matchDescription:'部分符合林奇成长合理估值框架',
-     styleReason:'业务简单易懂，盈利持续增长，但市值偏大、PEG偏高',
-     styleRisk:'大市值白马，成长空间有限，PEG不够理想'}}},
-  {name:'宁德时代',code:'300750.SZ',base:218,vol:0.025,trend:0.5,seed:88,pe:22.8,roe:21.5,score:87,risk:'mid',
-   reason:'新能源电池全球龙头，海外产能扩张加速，动量指标显示上升趋势',strats:['momentum','finrl'],
-   styles:{buffett:{styleScore:70,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
-     styleReason:'技术护城河深厚，但行业周期性强，资本开支大导致自由现金流偏弱',
-     styleRisk:'资本密集型业务，自由现金流不稳定'},
-   ark:{styleScore:91,matchDescription:'高度契合ARK颠覆式创新成长框架',
-     styleReason:'全球动力电池龙头，储能+固态电池双赛道布局，研发投入行业领先，平台化能力强',
-     styleRisk:'行业竞争加剧，产能过剩风险需关注'},
-   lynch:{styleScore:78,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG接近1，盈利增速可观，业务逻辑清晰，全球市占率持续提升',
-     styleRisk:'周期性波动较大，需关注原材料价格'}}},
-  {name:'比亚迪',code:'002594.SZ',base:295,vol:0.022,trend:0.6,seed:55,pe:28.5,roe:18.7,score:85,risk:'mid',
-   reason:'新能源汽车销量持续创新高，海外市场拓展顺利，情绪面积极',strats:['sentiment','momentum'],
-   styles:{buffett:{styleScore:68,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
-     styleReason:'垂直整合能力强，但资本密集型业务导致现金流偏弱',
-     styleRisk:'资本开支大，自由现金流不稳定'},
-   ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新成长框架',
-     styleReason:'垂直整合新能源汽车全产业链，自动驾驶+智能化布局加速，海外市场高速增长',
-     styleRisk:'竞争格局激烈，利润率承压风险'},
-   lynch:{styleScore:75,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'业务容易理解，增长强劲，海外市场空间大',
-     styleRisk:'估值偏高，需要持续高增长支撑'}}},
-  {name:'中国平安',code:'601318.SH',base:48,vol:0.018,trend:0.2,seed:33,pe:8.5,roe:15.2,score:78,risk:'low',
-   reason:'保险龙头估值处于历史低位，股息率具有吸引力，基本面稳健',strats:['fundamental','llm'],
-   styles:{buffett:{styleScore:82,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
-     styleReason:'保险浮存金模式天然具备投资杠杆，ROE稳定，低估值高股息，综合金融护城河',
-     styleRisk:'地产敞口仍需消化，投资端收益率承压'},
-   ark:{styleScore:72,matchDescription:'部分符合ARK颠覆式创新框架',
-     styleReason:'金融科技创新有亮点，但传统保险业务占比仍大',
-     styleRisk:'传统金融业务占比大，创新转化速度慢'},
-   lynch:{styleScore:74,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG合理，估值处于历史低位，但业务复杂度较高',
-     styleRisk:'业务复杂度高，不够简单易懂'}}},
-  {name:'招商银行',code:'600036.SH',base:35,vol:0.012,trend:0.15,seed:77,pe:6.2,roe:16.8,score:81,risk:'low',
-   reason:'零售银行标杆，净息差韧性强，分红率提升预期明确',strats:['fundamental','finrl'],
-   styles:{buffett:{styleScore:88,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
-     styleReason:'零售银行护城河深厚，ROE行业领先，资产质量优异，管理层治理优秀，分红稳定',
-     styleRisk:'银行业整体净息差收窄趋势，宏观经济不确定性'},
-   ark:{styleScore:68,matchDescription:'部分符合ARK颠覆式创新框架',
-     styleReason:'数字银行+金融科技创新有亮点，但传统银行业务占比大',
-     styleRisk:'传统银行模式，创新颠覆性不足'},
-   lynch:{styleScore:76,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG合理，估值极低，业务模式清晰',
-     styleRisk:'银行业增长空间有限'}}},
-  {name:'隆基绿能',code:'601012.SH',base:22,vol:0.03,trend:-0.3,seed:99,pe:12.1,roe:14.3,score:65,risk:'high',
-   reason:'光伏行业产能过剩压力仍在，但BC电池技术领先，长期价值待释放',strats:['sentiment','llm'],
-   styles:{buffett:{styleScore:58,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
-     styleReason:'光伏龙头有一定技术护城河，但行业周期性强，盈利不稳定',
-     styleRisk:'行业产能过剩，盈利大幅下滑'},
-   ark:{styleScore:78,matchDescription:'较好契合ARK颠覆式创新框架',
-     styleReason:'BC电池技术领先，清洁能源赛道长期空间大',
-     styleRisk:'行业产能过剩，短期盈利承压'},
-   lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
-     styleReason:'PE处于历史低位，BC电池技术领先，业务模式清晰易懂，行业出清后有望受益',
-     styleRisk:'行业产能严重过剩，短期盈利承压明显'}}},
-  {name:'中芯国际',code:'688981.SH',base:52,vol:0.028,trend:0.4,seed:120,pe:45.2,roe:8.5,score:79,risk:'high',
-   reason:'国产半导体龙头，受益于国产替代大趋势，产能利用率回升',strats:['sentiment','momentum'],
-   styles:{buffett:{styleScore:55,matchDescription:'不太符合巴菲特-芒格式质量价值筛选',
-     styleReason:'ROE偏低，资本开支巨大，不符合巴菲特对高质量企业的要求',
-     styleRisk:'盈利能力偏弱，资本密集型'},
-   ark:{styleScore:85,matchDescription:'较好契合ARK颠覆式创新成长框架',
-     styleReason:'半导体国产替代核心标的，先进制程持续突破，研发投入强度高，市场空间巨大',
-     styleRisk:'地缘政治风险，技术封锁不确定性，估值偏高'},
-   lynch:{styleScore:62,matchDescription:'部分符合林奇成长合理估值框架',
-     styleReason:'成长空间大但PEG偏高，业务技术门槛高',
-     styleRisk:'PEG偏高，业务不够简单易懂'}}},
-  {name:'迈瑞医疗',code:'300760.SZ',base:285,vol:0.018,trend:0.25,seed:135,pe:28.8,roe:29.5,score:83,risk:'mid',
-   reason:'医疗器械龙头，海外收入占比持续提升，研发管线丰富',strats:['fundamental','llm'],
-   styles:{buffett:{styleScore:80,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
-     styleReason:'ROE接近30%，医疗器械赛道护城河深，品牌+渠道+研发三重壁垒',
-     styleRisk:'估值不算便宜，需关注政策扰动'},
-   ark:{styleScore:75,matchDescription:'较好契合ARK颠覆式创新框架',
-     styleReason:'医疗器械创新+智能化趋势，海外市场拓展加速',
-     styleRisk:'传统医疗器械为主，颠覆性创新属性一般'},
-   lynch:{styleScore:86,matchDescription:'高度符合林奇成长合理估值框架',
-     styleReason:'PEG接近1，盈利增速稳健，医疗器械业务易懂，财务健康，海外成长空间广阔',
-     styleRisk:'集采政策风险，海外拓展不确定性'}}}
-];
+// [REMOVED] aStockRaw, usStockRaw, buildStock, aStocks, usStocks data arrays
+// Stock cards section has been replaced by real-time price trend chart
+const aStocks = [];
+const usStocks = [];
+const dateLabels = [];
 
-const usStockRaw=[
-  {name:'Apple',code:'AAPL',base:198,vol:0.015,trend:0.4,seed:111,pe:32.5,roe:147.2,score:91,risk:'low',
-   reason:'AI identifies strong ecosystem moat, Services revenue acceleration, and positive momentum signals',strats:['fundamental','momentum'],
-   styles:{buffett:{styleScore:93,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
-     styleReason:'极致的品牌护城河，ROE超140%，自由现金流充沛，回购+分红股东回报优秀，生态系统粘性极强',
-     styleRisk:'估值处于历史高位，创新节奏放缓风险'},
-   ark:{styleScore:75,matchDescription:'部分符合ARK颠覆式创新框架',
-     styleReason:'AI芯片+自动驾驶布局有创新属性，但成熟业务占比大',
-     styleRisk:'非典型颠覆式创新标的'},
-   lynch:{styleScore:70,matchDescription:'部分符合林奇成长合理估值框架',
-     styleReason:'业务极其简单易懂，但市值过大、PEG偏高',
-     styleRisk:'大市值，PEG不够理想'}}},
-  {name:'NVIDIA',code:'NVDA',base:135,vol:0.035,trend:0.8,seed:222,pe:65.3,roe:89.5,score:94,risk:'mid',
-   reason:'AI芯片绝对龙头，数据中心需求爆发，FinRL模型给出强烈买入信号',strats:['finrl','momentum'],
-   styles:{buffett:{styleScore:72,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
-     styleReason:'GPU+CUDA生态护城河极深，但估值极高且盈利周期性强',
-     styleRisk:'估值极高，盈利周期性强'},
-   ark:{styleScore:96,matchDescription:'极度契合ARK颠覆式创新成长框架',
-     styleReason:'AI基础设施绝对龙头，GPU+CUDA生态垄断，数据中心/自动驾驶/机器人三大平台，市场空间万亿级',
-     styleRisk:'估值极高，周期性风险，客户集中度'},
-   lynch:{styleScore:60,matchDescription:'不太符合林奇成长合理估值框架',
-     styleReason:'盈利增速惊人，但PEG仍偏高，估值远超合理范围',
-     styleRisk:'PEG极高，估值远超合理范围'}}},
-  {name:'Microsoft',code:'MSFT',base:445,vol:0.014,trend:0.35,seed:333,pe:36.8,roe:38.2,score:89,risk:'low',
-   reason:'Cloud + AI双轮驱动，Copilot商业化加速，LLM Agent评估前景乐观',strats:['llm','fundamental'],
-   styles:{buffett:{styleScore:90,matchDescription:'高度符合巴菲特-芒格式质量价值筛选',
-     styleReason:'Cloud+Office双护城河，ROE持续高位，自由现金流强劲，企业客户粘性极高，AI转型领先',
-     styleRisk:'估值偏高，反垄断监管风险'},
-   ark:{styleScore:88,matchDescription:'高度契合ARK颠覆式创新框架',
-     styleReason:'Cloud基础设施+AI大模型两大平台，Copilot商业化加速',
-     styleRisk:'成熟业务占比大，增速不如纯创新标的'},
-   lynch:{styleScore:72,matchDescription:'部分符合林奇成长合理估值框架',
-     styleReason:'业务模式清晰，盈利增长稳健，但市值过大',
-     styleRisk:'大市值，PEG偏高'}}},
-  {name:'Alphabet',code:'GOOGL',base:178,vol:0.018,trend:0.3,seed:444,pe:24.2,roe:28.6,score:86,risk:'low',
-   reason:'搜索广告基本盘稳固，Gemini模型持续进化，估值相对合理',strats:['fundamental','llm'],
-   styles:{buffett:{styleScore:83,matchDescription:'较好符合巴菲特-芒格式质量价值筛选',
-     styleReason:'搜索广告护城河极深，ROE稳健，现金储备充裕，估值合理',
-     styleRisk:'AI颠覆搜索的长期风险'},
-   ark:{styleScore:82,matchDescription:'较好契合ARK颠覆式创新框架',
-     styleReason:'Gemini大模型持续进化，Cloud基础设施优势明显',
-     styleRisk:'搜索广告基本盘受AI颠覆风险'},
-   lynch:{styleScore:84,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG合理，搜索广告业务易懂且盈利稳健，Cloud增速可观，估值在科技巨头中最具性价比',
-     styleRisk:'AI对搜索模式的颠覆风险，反垄断诉讼'}}},
-  {name:'Tesla',code:'TSLA',base:255,vol:0.04,trend:0.2,seed:555,pe:72.1,roe:22.4,score:73,risk:'high',
-   reason:'社交媒体情绪波动大，FSD进展是关键催化剂，短期波动风险较高',strats:['sentiment','finrl'],
-   styles:{buffett:{styleScore:45,matchDescription:'不符合巴菲特-芒格式质量价值筛选',
-     styleReason:'估值极高，盈利波动大，完全不符合巴菲特的投资标准',
-     styleRisk:'估值极高，盈利不稳定'},
-   ark:{styleScore:92,matchDescription:'高度契合ARK颠覆式创新成长框架',
-     styleReason:'自动驾驶+机器人+能源三大颠覆性平台，FSD商业化潜力巨大，Optimus人形机器人开辟新赛道',
-     styleRisk:'估值极高，执行风险大，竞争加剧'},
-   lynch:{styleScore:55,matchDescription:'不太符合林奇成长合理估值框架',
-     styleReason:'业务容易理解，成长空间大，但PEG远超合理范围',
-     styleRisk:'PEG极高，估值远超合理范围'}}},
-  {name:'Amazon',code:'AMZN',base:198,vol:0.02,trend:0.45,seed:666,pe:42.5,roe:19.8,score:84,risk:'mid',
-   reason:'AWS增速回暖，零售利润率改善，强化学习模型看好中期走势',strats:['finrl','momentum'],
-   styles:{buffett:{styleScore:75,matchDescription:'部分符合巴菲特-芒格式质量价值筛选',
-     styleReason:'电商+云计算双护城河，但资本密集型业务导致现金流波动',
-     styleRisk:'资本开支压力大，利润率波动'},
-   ark:{styleScore:80,matchDescription:'较好契合ARK颠覆式创新框架',
-     styleReason:'AWS云计算+AI平台布局，物流自动化创新',
-     styleRisk:'零售业务竞争激烈'},
-   lynch:{styleScore:80,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'电商+云计算业务模式清晰，盈利增速回升，AWS成长空间仍然广阔',
-     styleRisk:'估值偏高，零售竞争激烈，资本开支压力'}}},
-  {name:'Berkshire',code:'BRK.B',base:468,vol:0.01,trend:0.2,seed:777,pe:9.8,roe:15.5,score:80,risk:'low',
-   reason:'巴菲特旗舰，多元化投资组合，保险浮存金模式稳健',strats:['fundamental'],
-   styles:{buffett:{styleScore:98,matchDescription:'完美符合巴菲特-芒格式质量价值筛选',
-     styleReason:'巴菲特亲自管理的旗舰公司，保险浮存金+优质资产组合，低估值高安全边际，现金储备创历史新高',
-     styleRisk:'管理层接班风险，体量过大增长放缓'},
-   ark:{styleScore:40,matchDescription:'不符合ARK颠覆式创新框架',
-     styleReason:'传统价值投资公司，不属于颠覆式创新赛道',
-     styleRisk:'非创新标的，主题完全不契合'},
-   lynch:{styleScore:72,matchDescription:'较好符合林奇成长合理估值框架',
-     styleReason:'PEG合理，业务模式清晰，估值极低',
-     styleRisk:'体量过大，增长空间有限'}}},
-  {name:'Palantir',code:'PLTR',base:24,vol:0.045,trend:0.7,seed:888,pe:185,roe:12.3,score:76,risk:'high',
-   reason:'AI平台概念龙头，政府+商业双轮驱动，但估值极高',strats:['momentum','sentiment'],
-   styles:{buffett:{styleScore:35,matchDescription:'不符合巴菲特-芒格式质量价值筛选',
-     styleReason:'估值极高，盈利能力待验证，不符合巴菲特的投资标准',
-     styleRisk:'估值极高，盈利不稳定'},
-   ark:{styleScore:87,matchDescription:'较好契合ARK颠覆式创新成长框架',
-     styleReason:'AI数据分析平台龙头，AIP平台商业化加速，政府+企业双轮驱动，市场空间巨大',
-     styleRisk:'估值极度偏高，盈利能力待验证'},
-   lynch:{styleScore:42,matchDescription:'不符合林奇成长合理估值框架',
-     styleReason:'业务有一定可理解性，但PEG极高，估值远超合理范围',
-     styleRisk:'PEG极高，盈利能力待验证'}}}
-];
+/* PLACEHOLDER - old aStockRaw data removed */
+// prettier-ignore
+const _REMOVED_STOCK_DATA = true; // flag to indicate old data was removed
 
-function buildStock(raw,market){
-  const{prices,volumes}=generatePriceData(raw.base,raw.vol,raw.trend,raw.seed);
-  const cp=prices[prices.length-1],pp=prices[prices.length-2];
-  const change=Math.round((cp-pp)*100)/100;
-  const changePct=Math.round((change/pp)*10000)/100;
-  return{id:raw.code,name:raw.name,code:raw.code,market,aiScore:raw.score,price:cp,
-    change,changePercent:changePct,pe:raw.pe,roe:raw.roe,riskLevel:raw.risk,aiReason:raw.reason,
-    priceHistory:prices,volumeHistory:volumes,ma5:calcMA(prices,5),ma20:calcMA(prices,20),
-    strategies:raw.strats,investorStyles:raw.styles||{}}
-}
-
-const aStocks=aStockRaw.map(r=>buildStock(r,'A'));
-const usStocks=usStockRaw.map(r=>buildStock(r,'US'));
-
-const dateLabels=Array.from({length:30},(_,i)=>{
-  const d=new Date();d.setDate(d.getDate()-29+i);return`${d.getMonth()+1}/${d.getDate()}`});
 
 
 /* AI Stock Workbench — Application Logic & Rendering */
@@ -886,327 +701,197 @@ function createMiniChartCanvas(prices, id) {
 }
 
 function renderStockCards() {
-  const stocks = getFilteredStocks();
-  const avg = getAvgScore(stocks);
+  // Stock cards removed - replaced by real-time price trend chart
   const styleObj = getActiveStyleObj();
-
-  // Update hero
-  document.getElementById('heroTitle').textContent = (state.market === 'A' ? 'A股' : '美股') + '智能选股';
-  document.getElementById('heroCount').textContent = stocks.length;
-  document.getElementById('heroAvg').textContent = avg.toFixed(1);
-
-  // Update header
-  const headerTitle = document.querySelector('#stockHeader .section-title');
-  const headerBar = document.querySelector('#stockHeader .section-bar');
-  if (styleObj) {
-    headerTitle.textContent = styleObj.name + '选股结果';
-    headerBar.style.background = `linear-gradient(180deg,${styleObj.accentColor},${styleObj.accentColor}80)`;
-  } else {
-    headerTitle.textContent = 'AI选股结果';
-    headerBar.style.background = 'linear-gradient(180deg,#C9A96E,#D4B87A)';
-  }
-  document.getElementById('stockCount').textContent = stocks.length;
-  document.getElementById('stockCount').style.color = styleObj ? styleObj.accentColor : '#C9A96E';
-
-  const container = document.getElementById('stockGrid');
-  if (stocks.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state anim-fade">
-        <div class="empty-icon">\u{1F50D}</div>
-        <p class="empty-text">当前筛选条件下暂无匹配标的，请尝试调整风格或策略</p>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = '';
-  container.className = 'stock-grid';
-
-  stocks.forEach((stock, index) => {
-    const styleData = state.investorStyle ? stock.investorStyles[state.investorStyle] : null;
-    const displayScore = styleData ? styleData.styleScore : stock.aiScore;
-    const displayReason = styleData ? styleData.styleReason : stock.aiReason;
-    const displayRisk = styleData ? styleData.styleRisk : null;
-    const matchDesc = styleData ? styleData.matchDescription : null;
-    const isUp = stock.change >= 0;
-    const isSelected = state.selectedStock && state.selectedStock.id === stock.id;
-
-    const card = document.createElement('div');
-    card.className = `stock-card anim-fade-up ${isSelected ? 'active' : ''}`;
-    card.style.animationDelay = `${index * 0.06}s`;
-    if (isSelected && styleObj) {
-      card.style.borderColor = styleObj.accentBorder;
-    }
-
-    const riskClass = stock.riskLevel === 'low' ? 'risk-low' : stock.riskLevel === 'mid' ? 'risk-mid' : 'risk-high';
-    const riskLabel = stock.riskLevel === 'low' ? '低风险' : stock.riskLevel === 'mid' ? '中风险' : '高风险';
-
-    card.innerHTML = `
-      <div class="stock-top">
-        <div>
-          <div class="stock-name">${stock.name}</div>
-          <span class="stock-code">${stock.code}</span>
-        </div>
-        <span class="risk-badge ${riskClass}">${riskLabel}</span>
-      </div>
-      ${matchDesc ? `<div class="style-match-badge" style="background:${styleObj ? styleObj.accentBg : 'rgba(201,169,110,0.06)'};color:${styleObj ? styleObj.accentColor : '#C9A96E'};border:1px solid ${styleObj ? styleObj.accentBorder : 'rgba(201,169,110,0.15)'}">${matchDesc}</div>` : ''}
-      <div class="stock-middle">
-        <div class="score-price-wrap">
-          <div class="score-ring-wrap">
-            ${createScoreRingSVG(displayScore, 50, styleObj ? styleObj.accentColor : null)}
-          </div>
-          <div>
-            <div class="score-label">${styleData ? '风格评分' : 'AI评分'}</div>
-            <div class="stock-price" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${stock.market === 'A' ? '¥' : '$'}${stock.price.toFixed(2)}</div>
-          </div>
-        </div>
-        <div class="mini-chart" id="mc-${stock.id.replace(/\./g, '-')}"></div>
-      </div>
-      <div class="stock-change-row">
-        <span class="change-badge" style="background:${isUp ? 'rgba(46,139,106,0.07)' : 'rgba(192,82,82,0.07)'};color:${isUp ? 'var(--green)' : 'var(--red)'}">
-          ${isUp ? '+' : ''}${stock.changePercent.toFixed(2)}%
-        </span>
-        <span class="change-value" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">
-          ${isUp ? '+' : ''}${stock.change.toFixed(2)}
-        </span>
-        <div class="stock-indicators">
-          <span class="indicator-label">PE</span>
-          <span class="indicator-value">${stock.pe}</span>
-          <span class="indicator-sep"></span>
-          <span class="indicator-label">ROE</span>
-          <span class="indicator-value">${stock.roe}%</span>
-        </div>
-      </div>
-      <div class="stock-reason">
-        <span class="stock-reason-tag">${styleData ? '风格分析' : 'AI洞察'}</span>
-        <span class="stock-reason-sep">|</span>
-        ${displayReason}
-      </div>
-      ${displayRisk ? `<div class="stock-risk-note"><span>\u26A0</span> ${displayRisk}</div>` : ''}
-    `;
-
-    card.addEventListener('click', () => {
-      state.selectedStock = state.selectedStock && state.selectedStock.id === stock.id ? null : stock;
-      renderStockCards();
-      renderDetailChart();
-      if (state.selectedStock) {
-        document.getElementById('chartSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-
-    container.appendChild(card);
-
-    // Insert mini chart canvas
-    const mcContainer = card.querySelector(`#mc-${stock.id.replace(/\./g, '-')}`);
-    if (mcContainer) {
-      mcContainer.appendChild(createMiniChartCanvas(stock.priceHistory, stock.id.replace(/\./g, '-')));
-    }
-  });
+  document.getElementById('heroTitle').textContent = (state.market === 'A' ? 'A股' : '美股') + '智能分析';
+  document.getElementById('heroCount').textContent = '-';
+  document.getElementById('heroAvg').textContent = '-';
 }
 
 function renderDetailChart() {
-  const container = document.getElementById('chartContainer');
-  const stock = state.selectedStock;
-
-  if (!stock) {
-    container.innerHTML = '';
-    return;
-  }
-
-  if (state.detailChart) {
-    state.detailChart.destroy();
-    state.detailChart = null;
-  }
-
-  const isUp = stock.change >= 0;
-  const styleObj = getActiveStyleObj();
-  const accentColor = styleObj ? styleObj.accentColor : '#C9A96E';
-
-  container.innerHTML = `
-    <div class="chart-wrap anim-fade">
-      <div class="chart-header">
-        <div class="chart-stock-info">
-          <div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="chart-stock-name">${stock.name}</span>
-              <span class="chart-stock-code">${stock.code}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-              <span class="chart-stock-price" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${stock.market === 'A' ? '¥' : '$'}${stock.price.toFixed(2)}</span>
-              <span class="chart-stock-change" style="color:${isUp ? 'var(--green)' : 'var(--red)'}">${isUp ? '+' : ''}${stock.changePercent.toFixed(2)}%</span>
-            </div>
-          </div>
-        </div>
-        <div class="chart-tabs" id="chartTabs">
-          <button class="chart-tab active" data-view="all">综合视图</button>
-          <button class="chart-tab" data-view="price">价格</button>
-          <button class="chart-tab" data-view="volume">成交量</button>
-        </div>
-      </div>
-      <div class="chart-canvas-wrap">
-        <canvas id="detailCanvas"></canvas>
-      </div>
-      <div class="chart-footer">
-        <div class="chart-legend">
-          <div class="legend-item"><div class="legend-line" style="background:${accentColor}"></div>价格</div>
-          <div class="legend-item"><div class="legend-line" style="background:#C9A96E"></div>MA5</div>
-          <div class="legend-item"><div class="legend-line" style="background:#8B8B82;border-style:dashed"></div>MA20</div>
-          <div class="legend-item"><div class="legend-bar" style="background:rgba(201,169,110,0.2)"></div>成交量</div>
-        </div>
-        <div class="chart-indicators">
-          PE <span>${stock.pe}</span> &nbsp; ROE <span>${stock.roe}%</span> &nbsp; AI评分 <span style="color:${accentColor}">${stock.aiScore}</span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Chart tabs
-  document.querySelectorAll('#chartTabs .chart-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('#chartTabs .chart-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      buildChart(stock, tab.dataset.view, accentColor);
-    });
-  });
-
-  buildChart(stock, 'all', accentColor);
+  // Old detail chart for stock cards - now a no-op
 }
 
-function buildChart(stock, view, accentColor) {
-  if (state.detailChart) { state.detailChart.destroy(); state.detailChart = null; }
-  const canvas = document.getElementById('detailCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+// ===== PRICE TREND CHART (fetches from /api/chart/{code}) =====
+let priceChart = null;
 
-  const datasets = [];
-  const yAxes = {};
+async function fetchAndRenderPriceChart(stockCode) {
+  const section = document.getElementById('chartSection');
+  const container = document.getElementById('chartContainer');
+  const titleEl = document.getElementById('chartTitle');
+  const subtitleEl = document.getElementById('chartSubtitle');
 
-  if (view === 'all' || view === 'price') {
-    // Price line with gradient fill
-    datasets.push({
-      label: '价格',
-      data: stock.priceHistory,
-      borderColor: accentColor,
-      backgroundColor: (context) => {
-        const chart = context.chart;
-        const { ctx: c, chartArea } = chart;
-        if (!chartArea) return 'transparent';
-        const grad = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-        grad.addColorStop(0, accentColor + '18');
-        grad.addColorStop(1, 'rgba(250,250,248,0)');
-        return grad;
+  section.style.display = 'block';
+  titleEl.textContent = `${stockCode} 股价趋势图`;
+  subtitleEl.textContent = '正在加载数据...';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/chart/${encodeURIComponent(stockCode)}`);
+    if (!res.ok) {
+      subtitleEl.textContent = '获取数据失败';
+      return;
+    }
+    const json = await res.json();
+    const data = json.data;
+    if (!data || data.length === 0) {
+      subtitleEl.textContent = '无历史数据';
+      return;
+    }
+
+    subtitleEl.textContent = `最近${data.length}个交易日 · ${json.market}`;
+    titleEl.textContent = `${json.stock_code} 股价趋势图`;
+
+    const labels = data.map(d => d.date);
+    const closes = data.map(d => d.close);
+    const volumes = data.map(d => d.volume);
+
+    // Calculate MA5 and MA20
+    const ma5 = closes.map((_, i) => {
+      if (i < 4) return null;
+      return Math.round(closes.slice(i - 4, i + 1).reduce((a, b) => a + b, 0) / 5 * 100) / 100;
+    });
+    const ma20 = closes.map((_, i) => {
+      if (i < 19) return null;
+      return Math.round(closes.slice(i - 19, i + 1).reduce((a, b) => a + b, 0) / 20 * 100) / 100;
+    });
+
+    if (priceChart) { priceChart.destroy(); priceChart = null; }
+
+    const canvas = document.getElementById('priceChartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    priceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '收盘价',
+            data: closes,
+            borderColor: '#C9A96E',
+            backgroundColor: (context) => {
+              const chart = context.chart;
+              const { ctx: c, chartArea } = chart;
+              if (!chartArea) return 'transparent';
+              const grad = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              grad.addColorStop(0, 'rgba(201,169,110,0.15)');
+              grad.addColorStop(1, 'rgba(250,250,248,0)');
+              return grad;
+            },
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#C9A96E',
+            tension: 0.3,
+            yAxisID: 'y',
+            order: 1
+          },
+          {
+            label: 'MA5',
+            data: ma5,
+            borderColor: '#2E8B6A',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0.3,
+            yAxisID: 'y',
+            order: 2
+          },
+          {
+            label: 'MA20',
+            data: ma20,
+            borderColor: '#8B8B82',
+            borderWidth: 1,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            yAxisID: 'y',
+            order: 3
+          },
+          {
+            label: '成交量',
+            data: volumes,
+            backgroundColor: closes.map((p, i) => {
+              if (i === 0) return 'rgba(201,169,110,0.15)';
+              return p >= closes[i - 1] ? 'rgba(46,139,106,0.15)' : 'rgba(192,82,82,0.15)';
+            }),
+            borderRadius: 2,
+            yAxisID: 'y1',
+            type: 'bar',
+            order: 4
+          }
+        ]
       },
-      fill: true,
-      borderWidth: 2,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      pointHoverBackgroundColor: accentColor,
-      tension: 0.3,
-      yAxisID: 'y',
-      order: 1
-    });
-
-    // MA5
-    datasets.push({
-      label: 'MA5',
-      data: stock.ma5,
-      borderColor: '#C9A96E',
-      borderWidth: 1,
-      borderDash: [],
-      pointRadius: 0,
-      tension: 0.3,
-      yAxisID: 'y',
-      order: 2
-    });
-
-    // MA20
-    datasets.push({
-      label: 'MA20',
-      data: stock.ma20,
-      borderColor: '#8B8B82',
-      borderWidth: 1,
-      borderDash: [4, 3],
-      pointRadius: 0,
-      tension: 0.3,
-      yAxisID: 'y',
-      order: 3
-    });
-
-    yAxes.y = {
-      type: 'linear',
-      position: 'left',
-      grid: { color: 'rgba(201,169,110,0.04)', drawBorder: false },
-      ticks: { font: { family: 'var(--font-mono)', size: 10 }, color: '#9B9B93', padding: 8 }
-    };
-  }
-
-  if (view === 'all' || view === 'volume') {
-    datasets.push({
-      label: '成交量',
-      data: stock.volumeHistory,
-      backgroundColor: stock.priceHistory.map((p, i) => {
-        if (i === 0) return 'rgba(201,169,110,0.15)';
-        return p >= stock.priceHistory[i - 1] ? 'rgba(46,139,106,0.15)' : 'rgba(192,82,82,0.15)';
-      }),
-      borderRadius: 2,
-      yAxisID: view === 'volume' ? 'y' : 'y1',
-      type: 'bar',
-      order: 4
-    });
-
-    const volAxisId = view === 'volume' ? 'y' : 'y1';
-    yAxes[volAxisId] = {
-      type: 'linear',
-      position: view === 'volume' ? 'left' : 'right',
-      grid: { display: view === 'volume', color: 'rgba(201,169,110,0.04)', drawBorder: false },
-      ticks: {
-        font: { family: 'var(--font-mono)', size: 10 }, color: '#CDCDC5', padding: 8,
-        callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v
-      },
-      max: view === 'all' ? Math.max(...stock.volumeHistory) * 3 : undefined
-    };
-  }
-
-  state.detailChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: dateLabels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(255,255,252,0.95)',
-          titleColor: '#1A1A1A',
-          bodyColor: '#6B6B63',
-          borderColor: 'rgba(201,169,110,0.15)',
-          borderWidth: 1,
-          titleFont: { family: 'var(--font-display)', weight: '600', size: 12 },
-          bodyFont: { family: 'var(--font-mono)', size: 11 },
-          padding: 10,
-          cornerRadius: 8,
-          displayColors: true,
-          boxWidth: 8,
-          boxHeight: 8,
-          boxPadding: 4,
-          callbacks: {
-            label: function(ctx) {
-              if (ctx.dataset.label === '成交量') return '成交量: ' + (ctx.raw / 1000).toFixed(1) + 'k';
-              if (ctx.raw === null) return '';
-              return ctx.dataset.label + ': ' + ctx.raw.toFixed(2);
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,252,0.95)',
+            titleColor: '#1A1A1A',
+            bodyColor: '#6B6B63',
+            borderColor: 'rgba(201,169,110,0.15)',
+            borderWidth: 1,
+            titleFont: { family: 'var(--font-display)', weight: '600', size: 12 },
+            bodyFont: { family: 'var(--font-mono)', size: 11 },
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: true,
+            boxWidth: 8,
+            boxHeight: 8,
+            boxPadding: 4,
+            callbacks: {
+              label: function(ctx) {
+                if (ctx.dataset.label === '成交量') {
+                  const v = ctx.raw;
+                  if (v >= 1e8) return '成交量: ' + (v / 1e8).toFixed(2) + '亿';
+                  if (v >= 1e4) return '成交量: ' + (v / 1e4).toFixed(1) + '万';
+                  return '成交量: ' + v;
+                }
+                if (ctx.raw === null) return '';
+                return ctx.dataset.label + ': ' + ctx.raw.toFixed(2);
+              }
             }
           }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { family: 'var(--font-mono)', size: 9 }, color: '#CDCDC5', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
         },
-        ...yAxes
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'var(--font-mono)', size: 9 }, color: '#CDCDC5', maxRotation: 45, autoSkip: true, maxTicksLimit: 10 }
+          },
+          y: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: 'rgba(201,169,110,0.04)', drawBorder: false },
+            ticks: { font: { family: 'var(--font-mono)', size: 10 }, color: '#9B9B93', padding: 8 }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            grid: { display: false },
+            ticks: {
+              font: { family: 'var(--font-mono)', size: 10 }, color: '#CDCDC5', padding: 8,
+              callback: v => {
+                if (v >= 1e8) return (v / 1e8).toFixed(1) + '亿';
+                if (v >= 1e4) return (v / 1e4).toFixed(0) + '万';
+                return v;
+              }
+            },
+            max: Math.max(...volumes) * 3
+          }
+        }
       }
-    }
-  });
+    });
+
+    // Scroll to chart
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (err) {
+    console.error('Chart fetch error:', err);
+    subtitleEl.textContent = '加载失败，请稍后重试';
+  }
 }
 
 // ===== MARKET & RISK TOGGLES =====
@@ -1546,6 +1231,8 @@ function setupAnalyzer() {
         const apiResult = await analyzeViaAPI(q);
         if (apiResult) {
           renderAnalyzerReport(apiResult);
+          // Fetch and render price trend chart
+          fetchAndRenderPriceChart(apiResult.code || q.trim());
           return;
         } else {
           console.info('API returned no result, falling back to local data');
@@ -1556,6 +1243,8 @@ function setupAnalyzer() {
         setTimeout(() => {
           const r = searchAnalyzerDB(q);
           renderAnalyzerReport(r);
+          // Try chart even if analyze API failed
+          fetchAndRenderPriceChart(q.trim());
         }, 1000);
         return;
       }
@@ -1563,6 +1252,10 @@ function setupAnalyzer() {
     // Fallback to local mock data
     const r = searchAnalyzerDB(q);
     renderAnalyzerReport(r);
+    // Also try to fetch chart data even in fallback mode
+    if (API_BASE_URL) {
+      fetchAndRenderPriceChart(q.trim());
+    }
   }
   const container_report = document.getElementById('analyzerReport');
 
