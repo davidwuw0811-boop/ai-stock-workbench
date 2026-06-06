@@ -333,3 +333,94 @@ def _pct(val) -> Optional[float]:
     if f is not None:
         return round(f * 100, 2)
     return None
+
+
+# ==================== 新增：财务报表获取功能（供 Piotroski 和多因子使用） ====================
+
+import yfinance as yf
+from typing import Dict, Any, Optional
+import pandas as pd
+
+
+def convert_a_share_ticker(stock_code: str) -> str:
+    """将 A 股代码转换为 yfinance 可识别的格式"""
+    code = str(stock_code).strip()
+    if code.startswith(('6', '5')):
+        return f"{code}.SS"      # 上海
+    elif code.startswith(('0', '3')):
+        return f"{code}.SZ"      # 深圳
+    else:
+        return code              # 美股或其他
+
+
+def fetch_financial_statements(stock_code: str) -> Dict[str, Any]:
+    """
+    获取股票的三大财务报表（Income Statement, Balance Sheet, Cash Flow）
+    返回结构化数据，方便 Piotroski 和后续多因子计算使用
+    """
+    ticker = convert_a_share_ticker(stock_code)
+    
+    try:
+        stock = yf.Ticker(ticker)
+        
+        # 获取三大报表
+        income_stmt = stock.financials
+        balance_sheet = stock.balance_sheet
+        cash_flow = stock.cash_flow
+        
+        if income_stmt.empty:
+            return {"error": f"无法获取 {ticker} 的财务数据，可能是 yfinance 数据缺失"}
+        
+        # 取最近两个报告期（用于同比计算）
+        latest_income = income_stmt.iloc[:, 0].to_dict() if not income_stmt.empty else {}
+        prev_income = income_stmt.iloc[:, 1].to_dict() if income_stmt.shape[1] > 1 else {}
+        
+        latest_bs = balance_sheet.iloc[:, 0].to_dict() if not balance_sheet.empty else {}
+        prev_bs = balance_sheet.iloc[:, 1].to_dict() if balance_sheet.shape[1] > 1 else {}
+        
+        latest_cf = cash_flow.iloc[:, 0].to_dict() if not cash_flow.empty else {}
+        
+        return {
+            "ticker": ticker,
+            "latest_income": latest_income,
+            "previous_income": prev_income,
+            "latest_balance_sheet": latest_bs,
+            "previous_balance_sheet": prev_bs,
+            "latest_cash_flow": latest_cf,
+            "data_source": "yfinance",
+            "update_time": pd.Timestamp.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {"error": f"获取财务报表失败: {str(e)}", "ticker": ticker}
+
+
+def get_piotroski_input_data(stock_code: str) -> Dict[str, Any]:
+    """
+    专门为 Piotroski F-Score 准备的数据格式
+    （可以直接传给 piotroski_scorer.py 使用）
+    """
+    fin_data = fetch_financial_statements(stock_code)
+    
+    if "error" in fin_data:
+        return fin_data
+    
+    latest_income = fin_data.get("latest_income", {})
+    prev_income = fin_data.get("previous_income", {})
+    latest_bs = fin_data.get("latest_balance_sheet", {})
+    prev_bs = fin_data.get("previous_balance_sheet", {})
+    latest_cf = fin_data.get("latest_cash_flow", {})
+    
+    return {
+        "net_income": latest_income.get("Net Income", 0) or 0,
+        "total_assets": latest_bs.get("Total Assets", 0) or 0,
+        "operating_cash_flow": latest_cf.get("Operating Cash Flow", 0) or 0,
+        "long_term_debt": latest_bs.get("Long Term Debt", 0) or 0,
+        "current_assets": latest_bs.get("Current Assets", 0) or 0,
+        "current_liabilities": latest_bs.get("Current Liabilities", 0) or 0,
+        "gross_profit": latest_income.get("Gross Profit", 0) or 0,
+        "total_revenue": latest_income.get("Total Revenue", 0) or 0,
+        "previous_total_assets": prev_bs.get("Total Assets", 0) or 0,
+        "previous_gross_profit": prev_income.get("Gross Profit", 0) or 0,
+        "previous_total_revenue": prev_income.get("Total Revenue", 0) or 0,
+    }

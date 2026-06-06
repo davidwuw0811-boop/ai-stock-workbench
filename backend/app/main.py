@@ -13,6 +13,8 @@ from fastapi.responses import JSONResponse
 
 from .data_fetcher import fetch_stock, detect_market, normalize_a_code, a_code_to_yfinance
 from .scoring import score_buffett, score_ark, score_lynch, generate_strategy_signals, generate_conclusion
+from app.piotroski_scorer import calculate_piotroski_score
+from app.data_fetcher import fetch_financial_statements  # 可选，用于调试
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -330,6 +332,74 @@ async def chart_data(stock_code: str):
         )
 
 
+# ==================== Step 5 新增：Piotroski + 扫描接口 ====================
+
+@app.get("/api/analyze_with_piotroski/{stock_code}")
+async def analyze_with_piotroski(stock_code: str):
+    """单只股票分析 + Piotroski F-Score（测试用）"""
+    try:
+        # 调用现有分析（保持你原来的逻辑）
+        existing_analysis = await analyze_stock(stock_code)
+        
+        # 计算 Piotroski
+        piotroski_result = calculate_piotroski_score(stock_code)
+        
+        # 合并返回
+        return {
+            "stock_code": stock_code,
+            "existing_styles": existing_analysis,
+            "piotroski": piotroski_result,
+            "composite_score": round((existing_analysis.get("average_style_score", 0) * 0.7 + piotroski_result["piotroski_score"] * 0.3), 1) if "average_style_score" in existing_analysis else piotroski_result["piotroski_score"],
+            "message": "Piotroski F-Score 已集成！"
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/api/scan_custom")
+async def scan_custom(payload: dict):
+    """全市场扫描 - 完整版（风格 + Piotroski + 复合评分）"""
+    try:
+        tickers = payload.get("tickers", [])
+        if not tickers or len(tickers) > 50:
+            return {"error": "请提供1-50只股票代码"}
+        
+        results = []
+        for code in tickers:
+            # 调用原有风格分析
+            try:
+                style_result = await analyze_stock(code)
+            except:
+                style_result = {"average_style_score": 50}  # 兆底
+            
+            piotroski = calculate_piotroski_score(code)
+            
+            # 复合评分（可调权重）
+            style_score = style_result.get("average_style_score", 50)
+            piotroski_score = piotroski.get("piotroski_score", 0)
+            composite = round(style_score * 0.65 + piotroski_score * 0.35, 1)
+            
+            results.append({
+                "stock_code": code,
+                "style_score": round(style_score, 1),
+                "piotroski_score": piotroski_score,
+                "composite_score": composite,
+                "interpretation": piotroski.get("interpretation", "无数据"),
+                "rank": "⭐ 高潜力" if composite >= 75 else "🟡 中等" if composite >= 60 else "⚪ 观察"
+            })
+        
+        results.sort(key=lambda x: x["composite_score"], reverse=True)
+        
+        return {
+            "scan_time": "just now",
+            "total_scanned": len(tickers),
+            "top_picks": results[:15],
+            "all_results": results
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/")
 async def root():
     return {
@@ -340,6 +410,8 @@ async def root():
             "search": "/api/search?q=<keyword>",
             "analyze": "/api/analyze/<stock_code>",
             "chart": "/api/chart/<stock_code>",
+            "analyze_with_piotroski": "/api/analyze_with_piotroski/<stock_code>",
+            "scan_custom": "/api/scan_custom (POST)",
         },
         "disclaimer": DISCLAIMER,
     }

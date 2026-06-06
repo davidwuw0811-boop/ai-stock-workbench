@@ -452,6 +452,32 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
   </div>
 </section>
 
+<!-- ==================== Step 6 新增：全市场 / 自定义扫描 ==================== -->
+<!-- Step 7 升级版扫描区域 -->
+<section class="scan-section anim-fade-up" style="animation-delay:0.35s;padding:24px 0">
+  <div class="container">
+    <div style="padding: 25px; border: 1px solid rgba(201,169,110,0.2); border-radius: 12px; background: rgba(255,255,252,0.6); backdrop-filter:blur(16px);">
+      <h2 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">🚀 全市场扫描</h2>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:15px;">一键扫描预定义池，或输入自定义股票列表</p>
+      
+      <!-- 预定义按钮 -->
+      <div style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;">
+        <button onclick="quickScan('csi300')" style="padding:8px 16px;font-size:12px;font-weight:500;border-radius:6px;background:rgba(201,169,110,0.08);color:var(--gold-dark);border:1px solid rgba(201,169,110,0.2);cursor:pointer;">沪深300 Top</button>
+        <button onclick="quickScan('sp500')" style="padding:8px 16px;font-size:12px;font-weight:500;border-radius:6px;background:rgba(201,169,110,0.08);color:var(--gold-dark);border:1px solid rgba(201,169,110,0.2);cursor:pointer;">美股科技 Top</button>
+        <button onclick="quickScan('popular')" style="padding:8px 16px;font-size:12px;font-weight:500;border-radius:6px;background:rgba(201,169,110,0.08);color:var(--gold-dark);border:1px solid rgba(201,169,110,0.2);cursor:pointer;">热门A股</button>
+      </div>
+      
+      <textarea id="scan-tickers" rows="5" style="width:100%; padding:12px; font-family:var(--font-mono); border:1px solid rgba(201,169,110,0.2); border-radius:8px; background:white; font-size:13px;" placeholder="600519&#10;000858&#10;AAPL"></textarea>
+      
+      <button onclick="startCustomScan()" style="margin-top:10px; padding:14px 28px; background:linear-gradient(135deg,#C9A96E 0%,#B8963E 100%); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; box-shadow:0 2px 8px rgba(201,169,110,0.3);">
+        开始扫描
+      </button>
+      
+      <div id="scan-results" style="margin-top:25px;"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== FOOTER ===== -->
 <footer class="footer anim-fade-up" style="animation-delay:0.4s">
   <div class="footer-divider"></div>
@@ -1290,6 +1316,86 @@ function setupAnalyzer() {
   document.addEventListener('click', e => {
     if (!e.target.closest('.analyzer-input-wrap')) sugBox.classList.add('hidden');
   });
+}
+
+// ==================== Step 7 JS: 全市场扫描（升级版） ====================
+async function startCustomScan() {
+  const tickersInput = document.getElementById('scan-tickers').value.trim();
+  if (!tickersInput) return alert('请输入股票代码');
+  const tickers = tickersInput.split(/\n|,/).map(t => t.trim()).filter(Boolean);
+  await doScan(tickers);
+}
+
+async function quickScan(pool) {
+  let tickers = [];
+  if (pool === 'csi300') tickers = ['600519','000858','601398','600036','300750'];
+  else if (pool === 'sp500') tickers = ['AAPL','MSFT','NVDA','GOOGL','AMZN'];
+  else if (pool === 'popular') tickers = ['600519','000858','300624','601318','600900'];
+  await doScan(tickers);
+}
+
+async function doScan(tickers) {
+  const resultsDiv = document.getElementById('scan-results');
+  resultsDiv.innerHTML = '<p style="color:var(--gold);font-size:13px;">🔄 扫描中（最多50只）...</p>';
+  
+  try {
+    const res = await fetch('/api/scan_custom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({tickers})
+    });
+    const data = await res.json();
+    
+    if (data.error) {
+      resultsDiv.innerHTML = `<p style="color:var(--red);font-size:13px;">${data.error}</p>`;
+      return;
+    }
+    
+    let html = `
+      <h3 style="font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:12px;">扫描完成（${data.total_scanned} 只）</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:rgba(201,169,110,0.08);">
+            <th style="padding:10px 12px;text-align:left;border-bottom:1px solid rgba(201,169,110,0.15);">代码</th>
+            <th style="padding:10px 12px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15);">风格分</th>
+            <th style="padding:10px 12px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15);">Piotroski</th>
+            <th style="padding:10px 12px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15);">综合分</th>
+            <th style="padding:10px 12px;text-align:left;border-bottom:1px solid rgba(201,169,110,0.15);">解读</th>
+            <th style="padding:10px 12px;text-align:center;border-bottom:1px solid rgba(201,169,110,0.15);">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    const results = data.top_picks || data.all_results || [];
+    results.forEach(r => {
+      const compositeColor = r.composite_score >= 75 ? 'var(--green)' : r.composite_score >= 60 ? 'var(--gold-dark)' : 'var(--red)';
+      html += `
+        <tr style="border-bottom:1px solid rgba(0,0,0,0.04);cursor:pointer;" onclick="analyzeSingleStock('${r.stock_code}')">
+          <td style="padding:10px 12px;font-weight:600;">${r.stock_code}</td>
+          <td style="padding:10px 12px;text-align:center;">${r.style_score || 'N/A'}</td>
+          <td style="padding:10px 12px;text-align:center;font-weight:700;color:var(--green);">${r.piotroski_score}</td>
+          <td style="padding:10px 12px;text-align:center;font-weight:700;color:${compositeColor};">${r.composite_score}</td>
+          <td style="padding:10px 12px;color:var(--text-secondary);font-size:12px;">${r.interpretation}</td>
+          <td style="padding:10px 12px;text-align:center;"><button onclick="event.stopPropagation();analyzeSingleStock('${r.stock_code}')" style="padding:4px 12px;font-size:12px;border-radius:4px;background:rgba(201,169,110,0.1);color:var(--gold-dark);border:1px solid rgba(201,169,110,0.25);cursor:pointer;">查看详情</button></td>
+        </tr>
+      `;
+    });
+    html += '</tbody></table>';
+    resultsDiv.innerHTML = html;
+  } catch (e) {
+    resultsDiv.innerHTML = `<p style="color:var(--red);font-size:13px;">扫描失败: ${e.message}</p>`;
+  }
+}
+
+// 辅助函数：点击跳转到单股分析
+function analyzeSingleStock(code) {
+  const input = document.getElementById('analyzerInput');
+  if (input) {
+    input.value = code;
+    doAnalyze(code);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 // ===== INIT =====
