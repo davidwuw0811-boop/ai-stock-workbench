@@ -382,7 +382,8 @@ async def scan_custom(request: ScanRequest):
             
             style_score = style_result.get("average_style_score", 50)
             piotroski_score = piotroski.get("piotroski_score", 0)
-            composite = round(style_score * 0.65 + piotroski_score * 0.35, 1)
+            # 放大到 0-100 分，更直观区分
+            composite = round(style_score * 0.6 + (piotroski_score / 9 * 100) * 0.4, 1)
             
             results.append({
                 "stock_code": code,
