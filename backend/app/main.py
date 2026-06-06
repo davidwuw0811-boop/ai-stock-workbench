@@ -5,7 +5,7 @@ Real-time stock analysis with three investor style scoring models.
 
 import logging
 import traceback
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -356,11 +356,17 @@ async def analyze_with_piotroski(stock_code: str):
         return {"error": str(e)}
 
 
+from pydantic import BaseModel
+
+class ScanRequest(BaseModel):
+    """扫描请求模型"""
+    tickers: List[str]
+
 @app.post("/api/scan_custom")
-async def scan_custom(payload: dict):
-    """全市场扫描 - 完整版（风格 + Piotroski + 复合评分）"""
+async def scan_custom(request: ScanRequest):
+    """全市场扫描 - 修复版（支持复合评分）"""
     try:
-        tickers = payload.get("tickers", [])
+        tickers = request.tickers
         if not tickers or len(tickers) > 50:
             return {"error": "请提供1-50只股票代码"}
         
@@ -370,11 +376,10 @@ async def scan_custom(payload: dict):
             try:
                 style_result = await analyze_stock(code)
             except:
-                style_result = {"average_style_score": 50}  # 兆底
+                style_result = {"average_style_score": 50}
             
             piotroski = calculate_piotroski_score(code)
             
-            # 复合评分（可调权重）
             style_score = style_result.get("average_style_score", 50)
             piotroski_score = piotroski.get("piotroski_score", 0)
             composite = round(style_score * 0.65 + piotroski_score * 0.35, 1)
@@ -397,7 +402,7 @@ async def scan_custom(payload: dict):
             "all_results": results
         }
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"扫描失败: {str(e)}"}
 
 
 @app.get("/")
