@@ -1328,9 +1328,20 @@ async function startCustomScan() {
 
 async function quickScan(pool) {
   let tickers = [];
-  if (pool === 'csi300') tickers = ['600519','000858','601398','600036','300750'];
-  else if (pool === 'sp500') tickers = ['AAPL','MSFT','NVDA','GOOGL','AMZN'];
-  else if (pool === 'popular') tickers = ['600519','000858','300624','601318','600900'];
+  if (pool === 'csi300') {
+    // 调用后端获取真实沪深300列表
+    try {
+      const res = await fetch('/api/csi300_tickers');
+      const data = await res.json();
+      tickers = data.tickers || ['600519','000858','601398','600036','300750'];
+    } catch {
+      tickers = ['600519','000858','601398','600036','300750'];
+    }
+  } else if (pool === 'sp500') {
+    tickers = ['AAPL','MSFT','NVDA','GOOGL','AMZN'];
+  } else if (pool === 'popular') {
+    tickers = ['600519','000858','300624','601318','600900'];
+  }
   await doScan(tickers);
 }
 

@@ -405,6 +405,18 @@ async def scan_custom(request: ScanRequest):
         return {"error": f"扫描失败: {str(e)}"}
 
 
+@app.get("/api/csi300_tickers")
+async def get_csi300_tickers():
+    """返回沪深300成分股列表（动态获取）"""
+    try:
+        import akshare as ak
+        df = ak.index_stock_cons_csindex(symbol="000300")  # 真实沪深300成分股
+        tickers = df["代码"].tolist()[:100]  # 先取前100只
+        return {"tickers": tickers, "total": len(tickers)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/")
 async def root():
     return {
