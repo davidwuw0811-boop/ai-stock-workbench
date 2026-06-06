@@ -376,11 +376,19 @@ async def scan_custom(request: ScanRequest):
             try:
                 style_result = await analyze_stock(code)
             except:
-                style_result = {"average_style_score": 50}
+                style_result = None
             
             piotroski = calculate_piotroski_score(code)
             
-            style_score = style_result.get("average_style_score", 50)
+            # 从三大风格评分中计算平均分
+            if style_result and "styles" in style_result:
+                styles = style_result["styles"]
+                buffett_score = styles.get("buffett", {}).get("score", 0)
+                ark_score = styles.get("ark", {}).get("score", 0)
+                lynch_score = styles.get("lynch", {}).get("score", 0)
+                style_score = round((buffett_score + ark_score + lynch_score) / 3, 1)
+            else:
+                style_score = 0
             piotroski_score = piotroski.get("piotroski_score", 0)
             # 放大到 0-100 分，更直观区分
             composite = round(style_score * 0.6 + (piotroski_score / 9 * 100) * 0.4, 1)
