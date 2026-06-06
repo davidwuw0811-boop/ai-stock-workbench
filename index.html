@@ -1331,7 +1331,7 @@ async function quickScan(pool) {
   if (pool === 'csi300') {
     // 调用后端获取真实沪深300列表
     try {
-      const res = await fetch('/api/csi300_tickers');
+      const res = await fetch('https://ai-stock-workbench-production.up.railway.app/api/csi300_tickers');
       const data = await res.json();
       tickers = data.tickers || ['600519','000858','601398','600036','300750'];
     } catch {
@@ -1350,7 +1350,7 @@ async function doScan(tickers) {
   resultsDiv.innerHTML = '<p style="color:var(--gold);font-size:13px;">🔄 扫描中（最多50只）...</p>';
   
   try {
-    const res = await fetch('/api/scan_custom', {
+    const res = await fetch('https://ai-stock-workbench-production.up.railway.app/api/scan_custom', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({tickers})
