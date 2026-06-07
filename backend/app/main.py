@@ -390,8 +390,8 @@ async def scan_custom(request: ScanRequest):
             else:
                 style_score = 0
             piotroski_score = piotroski.get("piotroski_score", 0)
-            # 放大到 0-100 分，更直观区分
-            composite = round(style_score * 0.6 + (piotroski_score / 9 * 100) * 0.4, 1)
+            # 把Piotroski 权重提到 60%（更强调财务健康）
+            composite = round(style_score * 0.4 + (piotroski_score / 9 * 100) * 0.6, 1)
             
             results.append({
                 "stock_code": code,
